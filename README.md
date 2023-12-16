@@ -45,48 +45,49 @@ func main() {
 ## Functions
 ### Non-secure endpoints
 All non-secure endpoints do not need authentication and use the method GET.
-* GetStatus();
-* GetServertime();
-* GetSymbols();
-* GetTicker();
-* GetTrades();
-* GetBids();
-* GetAsks();
-* GetBooks();
-* GetDepth();
-* GetHistory();
+* ✅GetStatus();
+* ✅GetServertime();
+* ⏳GetSymbols();
+* ⏳GetTicker();
+* ⏳GetTrades();
+* ⏳GetBids();
+* ⏳GetAsks();
+* ⏳GetBooks();
+* ⏳GetDepth();
+* ⏳GetHistory();
 
 ### Secure endpoints v3
 All secure endpoints require authentication and use the method POST. These are old endpoints. We suspended the creation of old-version API keys using with the old secure endpoints. Please use the new secure endpoints V3 instead.
 
 #### User endpoints
-* TradingCredits();
-* Limits();
+* ⏳TradingCredits();
+* ⏳Limits();
 
 #### Market endpoints
-* Wallet();
-* Balances();
-* PlaceBid();
-* PlaceAsk();
-* CancelOrder();
-* Wstoken();
-* MyOpenOrders();
-* MyOrderHistory();
-* OrderInfo();
+* ⏳Wallet();
+* ⏳Balances();
+* ⏳PlaceBid();
+* ⏳PlaceAsk();
+* ⏳CancelOrder();
+* ⏳Wstoken();
+* ✅MyOpenOrders();
+* ✅MyOrderHistory();
+* ✅OrderInfo();
+* ✅OrderInfoByHash();
 
 #### Crypto endpoints
-* InternalWithdraw();
-* Addresses();
-* Withdraw();
-* DepositHistory();
-* WithdrawHistory();
-* GenerateAddress();
+* ⏳InternalWithdraw();
+* ⏳Addresses();
+* ⏳Withdraw();
+* ⏳DepositHistory();
+* ⏳WithdrawHistory();
+* ⏳GenerateAddress();
 
 #### Fiat endpoints
-* Accounts();
-* Withdraw();
-* DepositHistory();
-* WithdrawHistory();
+* ⏳Accounts();
+* ⏳Withdraw();
+* ⏳DepositHistory();
+* ⏳WithdrawHistory();
 
 #### Error codes
 Refer to the following descriptions:
