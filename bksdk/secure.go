@@ -16,7 +16,7 @@ import (
 // Method : GET
 // Query : sym string The symbol (e.g. btc_thb)
 func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
-	var dataResp response.MyOpenOrder
+	var respBody response.MyOpenOrder
 
 	// join the targetUrl with host and path
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOpenOrderV3)
@@ -26,19 +26,19 @@ func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 
 	resp, body, errs := bksdk.authGet(targetUrl, queryValues).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		return dataResp, errs[0]
+		return respBody, errs[0]
 	}
 
-	err := json.Unmarshal([]byte(body), &dataResp)
+	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return dataResp, err
+		return respBody, err
 	}
 
-	if dataResp.Error != 0 {
-		return dataResp, errors.New(bkerr.ErrorText(dataResp.Error))
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return dataResp, nil
+	return respBody, nil
 }
 
 // Endpoint : /api/v3/market/my-order-history
@@ -52,7 +52,7 @@ Query
 	end int End timestamp (optional)
 */
 func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
-	var dataResp response.MyOrderHistory
+	var respBody response.MyOrderHistory
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOrderHistoryV3)
 	queVal := url.Values{}
@@ -73,15 +73,15 @@ func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) 
 
 	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		return dataResp, errs[0]
+		return respBody, errs[0]
 	}
 
-	err := json.Unmarshal([]byte(body), &dataResp)
+	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return dataResp, err
+		return respBody, err
 	}
 
-	return dataResp, nil
+	return respBody, nil
 }
 
 // Endpoint : /api/v3/market/order-info
@@ -93,6 +93,58 @@ Query
 	sd string Order side: buy or sell
 	hash string Lookup an order with order hash (optional). You don't need to specify sym, id, and sd when you specify order hash.
 */
-func OrderInfo(sym, orderId, side, hash string) (response.OrderInfo, error) {
-	return response.OrderInfo{}, nil
+func (bksdk *Bitkubsdk) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
+	var respBody response.OrderInfo
+
+	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
+	queVal := url.Values{}
+	queVal.Add("sym", sym)
+	queVal.Add("id", orderId)
+	queVal.Add("sd", side)
+
+	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	err := json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+	}
+
+	return respBody, nil
+}
+
+// Endpoint : /api/v3/market/order-info
+// Method : GET
+/*
+Query
+	hash string Lookup an order with order hash.
+*/
+func (bksdk *Bitkubsdk) OrderInfoByHash(hash string) (response.OrderInfo, error) {
+	var respBody response.OrderInfo
+
+	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
+	queVal := url.Values{}
+	queVal.Add("hash", hash)
+
+	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	err := json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+	}
+
+	return respBody, nil
 }

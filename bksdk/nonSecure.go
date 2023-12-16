@@ -12,21 +12,21 @@ import (
 // Method : GET
 func (bksdk *Bitkubsdk) GetStatus() (response.Status, error) {
 	// init response body
-	var dataResp response.Status
+	var respBody response.Status
 
 	url := bksdk.apiHost.JoinPath(api.Status)
 
 	resp, body, errs := bksdk.req.Get(url.String()).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		return dataResp, errs[0]
+		return respBody, errs[0]
 	}
 
-	err := json.Unmarshal([]byte(body), &dataResp)
+	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return dataResp, err
+		return respBody, err
 	}
 
-	return dataResp, nil
+	return respBody, nil
 }
 
 // Endpoint : /api/servertime
