@@ -1,4 +1,4 @@
-package bitkubsdk
+package bkerr
 
 const (
 	NoError                            = 0
@@ -50,7 +50,7 @@ const (
 )
 
 // ErrorText is a function for get error text or description from error code
-func (bksdk *Bitkubsdk) ErrorText(errorCode int) string {
+func ErrorText(errorCode int) string {
 	switch errorCode {
 	case NoError:
 		return "No error"
