@@ -1,4 +1,4 @@
-package bkError
+package bkerr
 
 const (
 	NoError                            = 0

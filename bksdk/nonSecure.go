@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/naruebaet/bitkub-sdk/api"
-	"github.com/naruebaet/bitkub-sdk/response"
+	"github.com/naruebaet/bitkub-sdk/bksdk/api"
+	"github.com/naruebaet/bitkub-sdk/bksdk/response"
 )
 
 // Endpoint : /api/status
 // Method : GET
 func (bksdk *Bitkubsdk) GetStatus() (response.Status, error) {
+	// init response body
 	var dataResp response.Status
 
 	url := bksdk.apiHost.JoinPath(api.Status)
