@@ -1,4 +1,4 @@
-# Bitkub-SDK
+# Bitkub-SDK 🚀
 To connect to the Bitkub public API and use the secure endpoint using an api key and api secret, all you need is the Bitkub SDK.
 
 ## How to use.
@@ -37,6 +37,7 @@ import (
 )
 
 func main() {
+    // example : if error code is 2
     errtxt := bkerr.ErrorText(2) 
     fmt.Println(errtxt) // Missing X-BTK-APIKEY
 }
