@@ -2,7 +2,6 @@ package bitkubsdk
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/naruebaet/bitkub-sdk/api"
@@ -18,28 +17,26 @@ func (bksdk *Bitkubsdk) GetStatus() (response.Status, error) {
 
 	resp, body, errs := bksdk.req.Get(url.String()).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		bksdk.log.Error(errs[0].Error())
-		return dataResp, errors.New(api.Status + " Internal server error!")
+		return dataResp, errs[0]
 	}
 
 	err := json.Unmarshal([]byte(body), &dataResp)
 	if err != nil {
-		bksdk.log.Error(api.Status + " Can't unmarshal the response body!")
-		return dataResp, errors.New(api.Status + " Internal server error!")
+		return dataResp, err
 	}
 
 	return dataResp, nil
 }
 
+// Endpoint : /api/servertime
+// Method : GET
 func (bksdk *Bitkubsdk) GetServerTime() (string, error) {
 
 	url := bksdk.apiHost.JoinPath(api.ServertimeV3)
 
 	resp, timestamp, errs := bksdk.req.Get(url.String()).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		bksdk.log.Error(errs[0].Error())
-		return "0", errors.New(api.Status + " Internal server error!")
+		return "0", errs[0]
 	}
-
 	return timestamp, nil
 }

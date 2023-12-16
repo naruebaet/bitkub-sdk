@@ -11,6 +11,7 @@ import (
 	"strconv"
 
 	"github.com/naruebaet/bitkub-sdk/api"
+	"github.com/naruebaet/bitkub-sdk/bkError"
 	"github.com/naruebaet/bitkub-sdk/response"
 	"github.com/parnurzeal/gorequest"
 )
@@ -94,18 +95,16 @@ func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 
 	resp, body, errs := bksdk.authGet(targetUrl, queryValues).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		bksdk.log.Error(errs[0].Error())
-		return dataResp, errors.New(api.MarketMyOpenOrderV3 + " Internal server error!")
+		return dataResp, errs[0]
 	}
 
 	err := json.Unmarshal([]byte(body), &dataResp)
 	if err != nil {
-		bksdk.log.Error(api.MarketMyOpenOrderV3 + " Can't unmarshal the response body!")
-		return dataResp, errors.New(api.MarketMyOpenOrderV3 + " Internal server error!")
+		return dataResp, err
 	}
 
 	if dataResp.Error != 0 {
-		return dataResp, errors.New(bksdk.ErrorText(dataResp.Error))
+		return dataResp, errors.New(bkError.ErrorText(dataResp.Error))
 	}
 
 	return dataResp, nil
@@ -143,15 +142,12 @@ func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) 
 
 	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
-		bksdk.log.Error(errs[0].Error())
-		return dataResp, errors.New(api.MarketMyOrderHistoryV3 + " Internal server error!")
+		return dataResp, errs[0]
 	}
 
 	err := json.Unmarshal([]byte(body), &dataResp)
 	if err != nil {
-		bksdk.log.Error(api.MarketMyOrderHistoryV3 + " Can't unmarshal the response body!")
-		bksdk.log.Error(err.Error())
-		return dataResp, errors.New(api.MarketMyOrderHistoryV3 + " Internal server error!")
+		return dataResp, err
 	}
 
 	return dataResp, nil
