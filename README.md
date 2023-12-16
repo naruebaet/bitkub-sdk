@@ -48,14 +48,14 @@ func main() {
 All non-secure endpoints do not need authentication and use the method GET.
 * ✅GetStatus();
 * ✅GetServertime();
-* ⏳GetSymbols();
-* ⏳GetTicker();
-* ⏳GetTrades();
-* ⏳GetBids();
-* ⏳GetAsks();
-* ⏳GetBooks();
-* ⏳GetDepth();
-* ⏳GetHistory();
+* ✅GetSymbols();
+* ✅GetTicker();
+* ✅GetTrades();
+* ✅GetBids();
+* ✅GetAsks();
+* ✅GetBooks();
+* ✅GetDepth();
+* ✅GetHistory();
 
 ### Secure endpoints v3
 All secure endpoints require authentication and use the method POST. These are old endpoints. We suspended the creation of old-version API keys using with the old secure endpoints. Please use the new secure endpoints V3 instead.
