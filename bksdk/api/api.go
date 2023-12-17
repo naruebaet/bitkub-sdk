@@ -7,7 +7,7 @@ const (
 	Servertime         = "/api/servertime"
 	MarketSymbol       = "/api/market/symbols"
 	MarketTicker       = "/api/market/ticker"
-	MarketTrade        = "/api/market/trades"
+	MarketTrades       = "/api/market/trades"
 	MarketBids         = "/api/market/bids"
 	MarketAsks         = "/api/market/asks"
 	MarketBooks        = "/api/market/books"

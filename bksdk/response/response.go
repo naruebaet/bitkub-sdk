@@ -7,6 +7,76 @@ type Status []struct {
 	Message string `json:"message"`
 }
 
+// /api/market/trades
+type MarketTrades struct {
+	Error  int     `json:"error"`
+	Result [][]any `json:"result"`
+}
+
+// /api/market/bids
+type MarketBids struct {
+	Error  int     `json:"error"`
+	Result [][]any `json:"result"`
+}
+
+// /api/market/asks
+type MarketAsks struct {
+	Error  int     `json:"error"`
+	Result [][]any `json:"result"`
+}
+
+// /api/market/books
+type MarketBooks struct {
+	Error  int `json:"error"`
+	Result struct {
+		Bids [][]any `json:"bids"`
+		Asks [][]any `json:"asks"`
+	} `json:"result"`
+}
+
+// /tradingview/history
+type TradingviewHistory struct {
+	C []float64 `json:"c"`
+	H []float64 `json:"h"`
+	L []float64 `json:"l"`
+	O []float64 `json:"o"`
+	S string    `json:"s"`
+	T []int     `json:"t"`
+	V []float64 `json:"v"`
+}
+
+// /api/market/depth
+type MarketDepth struct {
+	Asks [][]float64 `json:"asks"`
+	Bids [][]float64 `json:"bids"`
+}
+
+// /api/market/ticker
+type MarketTicker struct {
+	string struct {
+		ID            int     `json:"id"`
+		Last          float64 `json:"last"`
+		LowestAsk     float64 `json:"lowestAsk"`
+		HighestBid    float64 `json:"highestBid"`
+		PercentChange float64 `json:"percentChange"`
+		BaseVolume    float64 `json:"baseVolume"`
+		QuoteVolume   float64 `json:"quoteVolume"`
+		IsFrozen      int     `json:"isFrozen"`
+		High24Hr      float64 `json:"high24hr"`
+		Low24Hr       float64 `json:"low24hr"`
+	}
+}
+
+// /api/market/symbols
+type MarketSymbols struct {
+	Error  int `json:"error"`
+	Result []struct {
+		ID     int    `json:"id"`
+		Symbol string `json:"symbol"`
+		Info   string `json:"info"`
+	} `json:"result"`
+}
+
 // /api/v3/market/my-open-orders
 type MyOpenOrder struct {
 	Error  int `json:"error"`
