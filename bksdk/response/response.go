@@ -9,28 +9,28 @@ type Status []struct {
 
 // /api/market/trades
 type MarketTrades struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][4]any `json:"result"`
 }
 
 // /api/market/bids
 type MarketBids struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][5]any `json:"result"`
 }
 
 // /api/market/asks
 type MarketAsks struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][5]any `json:"result"`
 }
 
 // /api/market/books
 type MarketBooks struct {
 	Error  int `json:"error"`
 	Result struct {
-		Bids [][]any `json:"bids"`
-		Asks [][]any `json:"asks"`
+		Bids [][5]any `json:"bids"`
+		Asks [][5]any `json:"asks"`
 	} `json:"result"`
 }
 
@@ -151,5 +151,43 @@ type OrderInfo struct {
 			Timestamp int64   `json:"timestamp"`
 			TxnID     string  `json:"txn_id"`
 		} `json:"history"`
+	} `json:"result"`
+}
+
+type TradingCredit struct {
+	Error  int     `json:"error"`
+	Result float32 `json:"result"`
+}
+
+type Limits struct {
+	Error  int `json:"error"`
+	Result struct {
+		Limits struct {
+			Crypto struct {
+				Deposit  float64 `json:"deposit"`
+				Withdraw float64 `json:"withdraw"`
+			} `json:"crypto"`
+			Fiat struct {
+				Deposit  float32 `json:"deposit"`
+				Withdraw float32 `json:"withdraw"`
+			} `json:"fiat"`
+		} `json:"limits"`
+		Usage struct {
+			Crypto struct {
+				Deposit               float64 `json:"deposit"`
+				Withdraw              float64 `json:"withdraw"`
+				DepositPercentage     float64 `json:"deposit_percentage"`
+				WithdrawPercentage    float64 `json:"withdraw_percentage"`
+				DepositThbEquivalent  float64 `json:"deposit_thb_equivalent"`
+				WithdrawThbEquivalent float64 `json:"withdraw_thb_equivalent"`
+			} `json:"crypto"`
+			Fiat struct {
+				Deposit            float32 `json:"deposit"`
+				Withdraw           float32 `json:"withdraw"`
+				DepositPercentage  float32 `json:"deposit_percentage"`
+				WithdrawPercentage float32 `json:"withdraw_percentage"`
+			} `json:"fiat"`
+		} `json:"usage"`
+		Rate float32 `json:"rate"`
 	} `json:"result"`
 }

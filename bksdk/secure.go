@@ -1,4 +1,4 @@
-package bitkubsdk
+package bksdk
 
 import (
 	"encoding/json"
@@ -12,10 +12,13 @@ import (
 	"github.com/naruebaet/bitkub-sdk/bksdk/response"
 )
 
-// Endpoint : /api/v3/market/my-open-orders
-// Method : GET
-// Query : sym string The symbol (e.g. btc_thb)
-func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
+/*
+Endpoint : /api/v3/market/my-open-orders
+Method : GET
+Desc. : List all open orders of the given symbol.
+Query : sym string The symbol (e.g. btc_thb)
+*/
+func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 	var respBody response.MyOpenOrder
 
 	// join the targetUrl with host and path
@@ -41,17 +44,19 @@ func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 	return respBody, nil
 }
 
-// Endpoint : /api/v3/market/my-order-history
-// Method : GET
 /*
+Endpoint : /api/v3/market/my-order-history
+Method : GET
+Desc. : List all orders that have already matched.
 Query
+
 	sym string The symbol (e.g. btc_thb)
 	p int Page (optional)
 	lmt int Limit (optional)
 	start int Start timestamp (optional)
 	end int End timestamp (optional)
 */
-func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
+func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
 	var respBody response.MyOrderHistory
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOrderHistoryV3)
@@ -84,16 +89,18 @@ func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) 
 	return respBody, nil
 }
 
-// Endpoint : /api/v3/market/order-info
-// Method : GET
 /*
+Endpoint : /api/v3/market/order-info
+Method : GET
+Desc. : Get information regarding the specified order.
 Query
+
 	sym string The symbol (e.g. btc_thb)
 	id string Order id
 	sd string Order side: buy or sell
 	hash string Lookup an order with order hash (optional). You don't need to specify sym, id, and sd when you specify order hash.
 */
-func (bksdk *Bitkubsdk) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
 	var respBody response.OrderInfo
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
@@ -119,13 +126,15 @@ func (bksdk *Bitkubsdk) OrderInfo(sym, orderId, side string) (response.OrderInfo
 	return respBody, nil
 }
 
-// Endpoint : /api/v3/market/order-info
-// Method : GET
 /*
+Endpoint : /api/v3/market/order-info
+Method : GET
+Desc. : Get information regarding the specified order.
 Query
+
 	hash string Lookup an order with order hash.
 */
-func (bksdk *Bitkubsdk) OrderInfoByHash(hash string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
 	var respBody response.OrderInfo
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
@@ -133,6 +142,60 @@ func (bksdk *Bitkubsdk) OrderInfoByHash(hash string) (response.OrderInfo, error)
 	queVal.Add("hash", hash)
 
 	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	err := json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+	}
+
+	return respBody, nil
+}
+
+/*
+Endpoint : /api/v3/user/trading-credits
+Method : POST
+Desc. : Check trading credit balance.
+*/
+func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
+	var respBody response.TradingCredit
+
+	targetUrl := bksdk.apiHost.JoinPath(api.UserTradingCreditsV3)
+
+	resp, body, errs := bksdk.authPost(targetUrl, "").End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	err := json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+	}
+
+	return respBody, nil
+}
+
+/*
+Endpoint : /api/v3/user/limits
+Method : POST
+Desc. : Check deposit/withdraw limitations and usage.
+*/
+func (bksdk *SDK) Limits() (response.Limits, error) {
+	var respBody response.Limits
+
+	targetUrl := bksdk.apiHost.JoinPath(api.UserLimitsV3)
+
+	resp, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil && resp.StatusCode != http.StatusOK {
 		return respBody, errs[0]
 	}
