@@ -1,4 +1,4 @@
-package bitkubsdk
+package bksdk
 
 import (
 	"encoding/json"
@@ -15,7 +15,7 @@ import (
 // Endpoint : /api/v3/market/my-open-orders
 // Method : GET
 // Query : sym string The symbol (e.g. btc_thb)
-func (bksdk *Bitkubsdk) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
+func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 	var respBody response.MyOpenOrder
 
 	// join the targetUrl with host and path
@@ -51,7 +51,7 @@ Query
 	start int Start timestamp (optional)
 	end int End timestamp (optional)
 */
-func (bksdk *Bitkubsdk) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
+func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
 	var respBody response.MyOrderHistory
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOrderHistoryV3)
@@ -93,7 +93,7 @@ Query
 	sd string Order side: buy or sell
 	hash string Lookup an order with order hash (optional). You don't need to specify sym, id, and sd when you specify order hash.
 */
-func (bksdk *Bitkubsdk) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
 	var respBody response.OrderInfo
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
@@ -125,7 +125,7 @@ func (bksdk *Bitkubsdk) OrderInfo(sym, orderId, side string) (response.OrderInfo
 Query
 	hash string Lookup an order with order hash.
 */
-func (bksdk *Bitkubsdk) OrderInfoByHash(hash string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
 	var respBody response.OrderInfo
 
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)

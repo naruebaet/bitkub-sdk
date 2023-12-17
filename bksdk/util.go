@@ -1,4 +1,4 @@
-package bitkubsdk
+package bksdk
 
 import (
 	"crypto/hmac"
@@ -20,7 +20,7 @@ import (
 	// Example for Post Method
 	1699376552354POST/api/v3/market/place-bid{"sym":"thb_btc","amt": 1000,"rat": 10,"typ": "limit"}
 */
-func (bksdk *Bitkubsdk) generateSignature(timestamp, method, endpoint, bodyPayload string) (signature string) {
+func (bksdk *SDK) generateSignature(timestamp, method, endpoint, bodyPayload string) (signature string) {
 	// secret key for hmac sha256.
 	secret := bksdk.apiSecret
 
@@ -39,7 +39,7 @@ func (bksdk *Bitkubsdk) generateSignature(timestamp, method, endpoint, bodyPaylo
 }
 
 // authGet is function for wrap request before send to secure endpoints
-func (bksdk *Bitkubsdk) authGet(targetUrl *url.URL, queryValues url.Values) *gorequest.SuperAgent {
+func (bksdk *SDK) authGet(targetUrl *url.URL, queryValues url.Values) *gorequest.SuperAgent {
 	// Step
 	// 1.get servertime before generate signature
 	// 2.then generate signature with timestamp, method, endpoint and payloads
@@ -57,7 +57,7 @@ func (bksdk *Bitkubsdk) authGet(targetUrl *url.URL, queryValues url.Values) *gor
 }
 
 // authPost is function for wrap request before send to secure endpoints
-func (bksdk *Bitkubsdk) authPost(targetUrl *url.URL, jsonPayload string) *gorequest.SuperAgent {
+func (bksdk *SDK) authPost(targetUrl *url.URL, jsonPayload string) *gorequest.SuperAgent {
 	// Step
 	// 1.get servertime before generate signature
 	// 2.then generate signature with timestamp, method, endpoint and payloads

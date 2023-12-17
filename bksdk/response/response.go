@@ -9,28 +9,28 @@ type Status []struct {
 
 // /api/market/trades
 type MarketTrades struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][4]any `json:"result"`
 }
 
 // /api/market/bids
 type MarketBids struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][5]any `json:"result"`
 }
 
 // /api/market/asks
 type MarketAsks struct {
-	Error  int     `json:"error"`
-	Result [][]any `json:"result"`
+	Error  int      `json:"error"`
+	Result [][5]any `json:"result"`
 }
 
 // /api/market/books
 type MarketBooks struct {
 	Error  int `json:"error"`
 	Result struct {
-		Bids [][]any `json:"bids"`
-		Asks [][]any `json:"asks"`
+		Bids [][5]any `json:"bids"`
+		Asks [][5]any `json:"asks"`
 	} `json:"result"`
 }
 
