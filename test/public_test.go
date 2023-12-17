@@ -2,6 +2,7 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/naruebaet/bitkub-sdk/bksdk"
@@ -47,7 +48,7 @@ func TestGetBids(t *testing.T) {
 	}
 
 	// init sdk for test
-	sdk := bksdk.New("xxx", "xxx")
+	sdk := bksdk.New(os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

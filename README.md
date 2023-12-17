@@ -61,8 +61,8 @@ All non-secure endpoints do not need authentication and use the method GET.
 All secure endpoints require authentication and use the method POST. These are old endpoints. We suspended the creation of old-version API keys using with the old secure endpoints. Please use the new secure endpoints V3 instead.
 
 #### User endpoints
-* ⏳TradingCredits();
-* ⏳Limits();
+* ✅TradingCredits();
+* ✅Limits();
 
 #### Market endpoints
 * ⏳Wallet();

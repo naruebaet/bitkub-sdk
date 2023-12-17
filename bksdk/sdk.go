@@ -27,7 +27,11 @@ type SDKFunction interface {
 	GetDepth(sym string, limit int) (response.MarketDepth, error)
 	GetHistory(symbol string, resolution string, from int, to int) (response.TradingviewHistory, error)
 
-	// secure endpoints
+	// User secure endpoints
+	TradingCredit() (response.TradingCredit, error)
+	Limits() (response.Limits, error)
+
+	// Market secure endpoints
 	MyOpenOrder(sym string) (response.MyOpenOrder, error)
 	MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error)
 	OrderInfo(sym, orderId, side string) (response.OrderInfo, error)

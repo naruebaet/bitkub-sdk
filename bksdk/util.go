@@ -4,6 +4,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"net/url"
 
 	"github.com/parnurzeal/gorequest"
@@ -72,4 +73,13 @@ func (bksdk *SDK) authPost(targetUrl *url.URL, jsonPayload string) *gorequest.Su
 		Set("X-BTK-SIGN", sig).
 		Set("Content-Type", "application/json").
 		Send(jsonPayload)
+}
+
+// PrettyStruct : print pretty json struct
+func PrettyStruct(data interface{}) (string, error) {
+	val, err := json.MarshalIndent(data, "", "    ")
+	if err != nil {
+		return "", err
+	}
+	return string(val), nil
 }
