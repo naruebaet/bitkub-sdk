@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-var resl = map[string]string{
+var resolutions = map[string]string{
 	"1":   "1",
 	"5":   "5",
 	"15":  "15",
@@ -14,12 +14,13 @@ var resl = map[string]string{
 	"1D":  "1D",
 }
 
-func ValidateResolution(val string) (string, error) {
-	// find val
-	res := resl[strings.ToUpper(val)]
-	if res == "" {
-		return "", errors.New("Invalid resolutions!")
+// ValidateResolution checks if the given value is a valid resolution and returns the corresponding resolution value.
+// If the value is not valid, it returns an error.
+func ValidateResolution(value string) (string, error) {
+	resolution := resolutions[strings.ToUpper(value)]
+	if resolution == "" {
+		return "", errors.New("Invalid resolution")
 	}
 
-	return res, nil
+	return resolution, nil
 }
