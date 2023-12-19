@@ -49,7 +49,8 @@ const (
 	ServerError                        = 90
 )
 
-// ErrorText is a function for get error text or description from error code
+// ErrorText is a function that returns the error text or description from an error code.
+// If the error code is not found, it returns "error code not found!"
 func ErrorText(errorCode int) string {
 	switch errorCode {
 	case NoError:

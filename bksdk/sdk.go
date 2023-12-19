@@ -14,7 +14,7 @@ type SDK struct {
 	req       *gorequest.SuperAgent
 }
 
-type SDKFunction interface {
+type SDKEndpoints interface {
 	// public endpoints
 	GetStatus() (response.Status, error)
 	GetServerTime() (string, error)
@@ -38,17 +38,22 @@ type SDKFunction interface {
 	OrderInfoByHash(hash string) (response.OrderInfo, error)
 }
 
-func New(apiKey, apiSecret string) SDKFunction {
-	// init. gorequest super agent
+// New creates a new SDK instance with the provided apiKey and apiSecret.
+// It initializes the gorequest super agent and sets the API host URL.
+func New(apiKey, apiSecret string) SDKEndpoints {
+	// Initialize the gorequest super agent
 	req := gorequest.New()
 
-	// validate that is the url
-	apiHostUrl, _ := url.Parse("https://api.bitkub.com")
+	// Set the API host URL
+	apiHostURL, _ := url.Parse("https://api.bitkub.com")
 
-	return &SDK{
-		apiHost:   apiHostUrl,
+	// Create a new SDK instance
+	sdk := &SDK{
+		apiHost:   apiHostURL,
 		apiKey:    apiKey,
 		apiSecret: apiSecret,
 		req:       req,
 	}
+
+	return sdk
 }
