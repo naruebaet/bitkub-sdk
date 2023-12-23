@@ -348,3 +348,85 @@ func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string,
 
 	return respBody, nil
 }
+
+// DepositHistory returns a list of crypto deposit history.
+// It sends a POST request to the /api/v3/crypto/deposit-history endpoint.
+// Parameters:
+// - page: int, optional page number
+// - limit: int, optional limit per page
+// Returns:
+// - response.DepositHistory: the deposit history response
+// - error: any error that occurred during the request
+func (bksdk *SDK) DepositHistory(page, limit int) (response.DepositHistory, error) {
+	var respBody response.DepositHistory
+
+	// Prepare the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoDepositHistoryV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// WithdrawHistory returns a list of crypto withdraw history.
+// It sends a POST request to the /api/v3/crypto/withdraw-history endpoint.
+// Parameters:
+// - page: int, optional page number
+// - limit: int, optional limit per page
+// Returns:
+// - response.WithdrawHistory: the withdraw history response
+// - error: any error that occurred during the request
+func (bksdk *SDK) WithdrawHistory(page, limit int) (response.WithdrawHistory, error) {
+	// Initialize the response variable
+	var respBody response.WithdrawHistory
+
+	// Prepare the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoWithdrawHistoryV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
