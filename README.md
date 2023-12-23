@@ -38,8 +38,7 @@ import (
 
 func main() {
     // example : if error code is 2
-    errtxt := bkerr.ErrorText(2) 
-    fmt.Println(errtxt) // Missing X-BTK-APIKEY
+    fmt.Println(bkerr.ErrorText(2)) // Missing X-BTK-APIKEY
 }
 ```
 
@@ -65,12 +64,12 @@ All secure endpoints require authentication and use the method POST. These are o
 * ✅Limits();
 
 #### Market endpoints
-* ⏳Wallet();
-* ⏳Balances();
+* ✅Wallet();
+* ✅Balances();
 * ⏳PlaceBid();
 * ⏳PlaceAsk();
 * ⏳CancelOrder();
-* ⏳Wstoken();
+* ✅Wstoken();
 * ✅MyOpenOrders();
 * ✅MyOrderHistory();
 * ✅OrderInfo();
