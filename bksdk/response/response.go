@@ -191,3 +191,28 @@ type Limits struct {
 		Rate float32 `json:"rate"`
 	} `json:"result"`
 }
+
+type Wallet struct {
+	Error  int          `json:"error"`
+	Result WalletResult `json:"result"`
+}
+type WalletResult struct {
+	Thb float64 `json:"THB"`
+	Btc float64 `json:"BTC"`
+	Eth float64 `json:"ETH"`
+}
+
+type Balance struct {
+	Error  int                      `json:"error"`
+	Result map[string]BalanceResult `json:"result"`
+}
+
+type BalanceResult struct {
+	Available float32 `json:"available"`
+	Reserved  float32 `json:"reserved"`
+}
+
+type WsToken struct {
+	Error  int    `json:"error"`
+	Result string `json:"result"`
+}

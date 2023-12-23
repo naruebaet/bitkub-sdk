@@ -11,57 +11,57 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// GetBids real request test.
+// TestGetBids is a unit test function for the GetBids function.
 func TestGetBids(t *testing.T) {
-	// test arguments
+	// Define the input arguments type.
 	type args struct {
-		sym string
-		lmt int
+		symbol string // The symbol to get bids data.
+		limit  int    // The limit of bids data to retrieve.
 	}
 
-	// test case definition
+	// Define the test cases.
 	tests := []struct {
-		id      int
-		name    string
-		args    args
-		want    any
-		wantErr error
+		name    string      // The name of the test case.
+		args    args        // The input arguments.
+		want    interface{} // The expected output.
+		wantErr error       // The expected error.
 	}{
 		{
-			id:   1,
 			name: "should return 5 bids data of BTC",
 			args: args{"THB_BTC", 1},
 			want: 5,
 		},
 		{
-			id:   2,
 			name: "should return MarketBids type",
 			args: args{"THB_BTC", 1},
 			want: response.MarketBids{},
 		},
 		{
-			id:      3,
 			name:    "should error when not found symbol",
 			args:    args{"BTC_THB", 1},
 			wantErr: fmt.Errorf(bkerr.ErrorText(bkerr.InvalidSymbol)),
 		},
 	}
 
-	// init sdk for test
+	// Create a new instance of the SDK.
 	sdk := bksdk.New(os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
 
+	// Iterate over the test cases.
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := sdk.GetBids(tt.args.sym, tt.args.lmt)
+			// Call the GetBids function.
+			got, err := sdk.GetBids(tt.args.symbol, tt.args.limit)
 
-			if tt.id == 1 {
+			// Perform assertions based on the test case name.
+			switch tt.name {
+			case "should return 5 bids data of BTC":
 				assert.Equal(t, tt.want, len(got.Result[0]))
-			} else if tt.id == 2 {
+			case "should return MarketBids type":
 				assert.IsType(t, tt.want, got)
 			}
 
+			// Assert that the error matches the expected error.
 			assert.Equal(t, tt.wantErr, err)
 		})
 	}
-
 }
