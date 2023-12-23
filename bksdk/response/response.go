@@ -208,11 +208,24 @@ type Balance struct {
 }
 
 type BalanceResult struct {
-	Available float32 `json:"available"`
-	Reserved  float32 `json:"reserved"`
+	Available float64 `json:"available"`
+	Reserved  float64 `json:"reserved"`
 }
 
 type WsToken struct {
 	Error  int    `json:"error"`
 	Result string `json:"result"`
+}
+
+type InternalWithdraw struct {
+	Error  int `json:"error"`
+	Result struct {
+		Txn string  `json:"txn"`
+		Adr string  `json:"adr"`
+		Mem string  `json:"mem"`
+		Cur string  `json:"cur"`
+		Amt float64 `json:"amt"`
+		Fee float64 `json:"fee"`
+		Ts  int     `json:"ts"`
+	} `json:"result"`
 }

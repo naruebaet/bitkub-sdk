@@ -311,3 +311,40 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 
 	return respBody, nil
 }
+
+// InternalWithdraw makes a withdrawal to an internal address.
+// The destination address does not need to be a trusted address.
+// This API is not enabled by default. Only KYB users can request this feature by contacting us via support@bitkub.com.
+func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
+	// Create request body
+	reqBody := map[string]interface{}{
+		"cur": currency,
+		"amt": amount,
+		"adr": address,
+		"mem": memo,
+	}
+
+	// Marshal request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return response.InternalWithdraw{}, err
+	}
+
+	// Construct target URL
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoInternalWithdrawV3)
+
+	// Send authenticated POST request with request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return response.InternalWithdraw{}, errs[0]
+	}
+
+	// Unmarshal response body
+	var respBody response.InternalWithdraw
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return response.InternalWithdraw{}, err
+	}
+
+	return respBody, nil
+}
