@@ -76,11 +76,11 @@ All secure endpoints require authentication and use the method POST. These are o
 * ✅OrderInfoByHash();
 
 #### Crypto endpoints
-* ⏳InternalWithdraw();
+* ✅InternalWithdraw();
 * ⏳Addresses();
 * ⏳Withdraw();
-* ⏳DepositHistory();
-* ⏳WithdrawHistory();
+* ✅DepositHistory();
+* ✅WithdrawHistory();
 * ⏳GenerateAddress();
 
 #### Fiat endpoints

@@ -208,11 +208,60 @@ type Balance struct {
 }
 
 type BalanceResult struct {
-	Available float32 `json:"available"`
-	Reserved  float32 `json:"reserved"`
+	Available float64 `json:"available"`
+	Reserved  float64 `json:"reserved"`
 }
 
 type WsToken struct {
 	Error  int    `json:"error"`
 	Result string `json:"result"`
+}
+
+type InternalWithdraw struct {
+	Error  int `json:"error"`
+	Result struct {
+		Txn string  `json:"txn"`
+		Adr string  `json:"adr"`
+		Mem string  `json:"mem"`
+		Cur string  `json:"cur"`
+		Amt float64 `json:"amt"`
+		Fee float64 `json:"fee"`
+		Ts  int     `json:"ts"`
+	} `json:"result"`
+}
+
+type DepositHistory struct {
+	Error  int `json:"error"`
+	Result []struct {
+		Hash          string  `json:"hash"`
+		Currency      string  `json:"currency"`
+		Amount        float64 `json:"amount"`
+		FromAddress   string  `json:"from_address"`
+		ToAddress     string  `json:"to_address"`
+		Confirmations int     `json:"confirmations"`
+		Status        string  `json:"status"`
+		Time          int     `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
+}
+
+type WithdrawHistory struct {
+	Error  int `json:"error"`
+	Result []struct {
+		TxnID    string  `json:"txn_id"`
+		Hash     string  `json:"hash"`
+		Currency string  `json:"currency"`
+		Amount   string  `json:"amount"`
+		Fee      float64 `json:"fee"`
+		Address  string  `json:"address"`
+		Status   string  `json:"status"`
+		Time     int     `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
 }

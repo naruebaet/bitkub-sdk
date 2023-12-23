@@ -311,3 +311,122 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 
 	return respBody, nil
 }
+
+// InternalWithdraw makes a withdrawal to an internal address.
+// The destination address does not need to be a trusted address.
+// This API is not enabled by default. Only KYB users can request this feature by contacting us via support@bitkub.com.
+func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
+	// Create request body
+	reqBody := map[string]interface{}{
+		"cur": currency,
+		"amt": amount,
+		"adr": address,
+		"mem": memo,
+	}
+
+	// Marshal request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return response.InternalWithdraw{}, err
+	}
+
+	// Construct target URL
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoInternalWithdrawV3)
+
+	// Send authenticated POST request with request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return response.InternalWithdraw{}, errs[0]
+	}
+
+	// Unmarshal response body
+	var respBody response.InternalWithdraw
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return response.InternalWithdraw{}, err
+	}
+
+	return respBody, nil
+}
+
+// DepositHistory returns a list of crypto deposit history.
+// It sends a POST request to the /api/v3/crypto/deposit-history endpoint.
+// Parameters:
+// - page: int, optional page number
+// - limit: int, optional limit per page
+// Returns:
+// - response.DepositHistory: the deposit history response
+// - error: any error that occurred during the request
+func (bksdk *SDK) DepositHistory(page, limit int) (response.DepositHistory, error) {
+	var respBody response.DepositHistory
+
+	// Prepare the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoDepositHistoryV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// WithdrawHistory returns a list of crypto withdraw history.
+// It sends a POST request to the /api/v3/crypto/withdraw-history endpoint.
+// Parameters:
+// - page: int, optional page number
+// - limit: int, optional limit per page
+// Returns:
+// - response.WithdrawHistory: the withdraw history response
+// - error: any error that occurred during the request
+func (bksdk *SDK) WithdrawHistory(page, limit int) (response.WithdrawHistory, error) {
+	// Initialize the response variable
+	var respBody response.WithdrawHistory
+
+	// Prepare the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetUrl := bksdk.apiHost.JoinPath(api.CryptoWithdrawHistoryV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	if errs != nil && resp.StatusCode != http.StatusOK {
+		return respBody, errs[0]
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
