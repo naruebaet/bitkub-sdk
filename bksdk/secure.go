@@ -9,6 +9,7 @@ import (
 
 	"github.com/naruebaet/bitkub-sdk/bksdk/api"
 	"github.com/naruebaet/bitkub-sdk/bksdk/bkerr"
+	"github.com/naruebaet/bitkub-sdk/bksdk/request"
 	"github.com/naruebaet/bitkub-sdk/bksdk/response"
 )
 
@@ -21,18 +22,25 @@ import (
 // - response.MyOpenOrder: The response body containing the list of open orders
 // - error: Any error that occurred during the API call
 func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
+	// Initialize an empty variable to store the response body
 	var respBody response.MyOpenOrder
 
-	// Join the targetUrl with the host and path
+	// Join the target URL with the host and path
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOpenOrderV3)
+
 	// Initialize query values
 	queryValues := url.Values{}
 	queryValues.Add("sym", sym)
 
 	// Make the authenticated GET request
 	resp, body, errs := bksdk.authGet(targetUrl, queryValues).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	// Check if there was an error in the API response
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
@@ -65,9 +73,13 @@ func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 //   - response.MyOrderHistory: The response body containing the order history
 //   - error: An error if the request fails
 func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
+	// Initialize the response body
 	var respBody response.MyOrderHistory
 
+	// Construct the target URL
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketMyOrderHistoryV3)
+
+	// Create the query string parameters
 	queVal := url.Values{}
 	queVal.Add("sym", sym)
 
@@ -85,16 +97,24 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (respo
 		queVal.Add("end", strconv.Itoa(end))
 	}
 
+	// Make the authenticated GET request
 	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
 	}
 
+	// Check if the request was successful
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
 	}
 
+	// Return the response body and nil error
 	return respBody, nil
 }
 
@@ -106,21 +126,27 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (respo
 // - side: the side of the order: buy or sell
 // It returns an instance of response.OrderInfo and an error, if any.
 func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
+	// Initialize the response body
 	var respBody response.OrderInfo
 
 	// Construct the target URL
-	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
+	targetURL := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
 
 	// Construct the query parameters
-	queVal := url.Values{}
-	queVal.Add("sym", sym)
-	queVal.Add("id", orderId)
-	queVal.Add("sd", side)
+	queryValues := url.Values{}
+	queryValues.Add("sym", sym)
+	queryValues.Add("id", orderId)
+	queryValues.Add("sd", side)
 
 	// Make the GET request and get the response
-	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	resp, body, errs := bksdk.authGet(targetURL, queryValues).End()
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into respBody
@@ -134,6 +160,7 @@ func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, erro
 		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
+	// Return the response body and nil error
 	return respBody, nil
 }
 
@@ -150,29 +177,42 @@ func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, erro
 func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
 	var respBody response.OrderInfo
 
+	// Construct the target URL
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketOrderInfoV3)
+
+	// Set the query parameters
 	queVal := url.Values{}
 	queVal.Add("hash", hash)
 
+	// Send the GET request to the target URL with the query parameters
 	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
 	}
 
+	// Check if the response status code is not OK
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body and store it in respBody
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
 	}
 
+	// Check if there is an error in the response body
 	if respBody.Error != 0 {
 		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
+	// Return the response body and nil error
 	return respBody, nil
 }
 
 // TradingCredit retrieves the trading credit balance.
 func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
+	// Create a variable to store the response body
 	var respBody response.TradingCredit
 
 	// Construct the target URL for the API endpoint
@@ -180,8 +220,13 @@ func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
 
 	// Make a POST request to the API endpoint
 	resp, body, errs := bksdk.authPost(targetUrl, "").End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	// Check if the request was successful
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
@@ -204,12 +249,16 @@ func (bksdk *SDK) Limits() (response.Limits, error) {
 	var respBody response.Limits
 
 	// Construct the target URL
-	targetUrl := bksdk.apiHost.JoinPath(api.UserLimitsV3)
+	targetURL := bksdk.apiHost.JoinPath(api.UserLimitsV3)
 
 	// Send a POST request to the target URL
-	resp, body, errs := bksdk.authPost(targetUrl, "").End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	resp, body, errs := bksdk.authPost(targetURL, "").End()
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody struct
@@ -227,14 +276,8 @@ func (bksdk *SDK) Limits() (response.Limits, error) {
 }
 
 // Wallet retrieves the user's available balances, including both available and reserved balances.
-//
-// Endpoint:  /api/v3/market/wallet
-// Method: POST
-// Parameters: N/A
-//
-// Returns:
-// - response.Wallet: the user's wallet information
-// - error: any error that occurred during the API call
+// It makes a POST request to the /api/v3/market/wallet endpoint.
+// It returns the user's wallet information and any error that occurred during the API call.
 func (bksdk *SDK) Wallet() (response.Wallet, error) {
 	var respBody response.Wallet
 
@@ -243,8 +286,12 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 
 	// Make the API call
 	resp, body, errs := bksdk.authPost(targetUrl, "").End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Parse the API response
@@ -262,6 +309,7 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 // Method: POST
 // Parameter: N/A
 func (bksdk *SDK) Balance() (response.Balance, error) {
+	// Initialize the response object
 	var respBody response.Balance
 
 	// Construct the target URL
@@ -269,8 +317,13 @@ func (bksdk *SDK) Balance() (response.Balance, error) {
 
 	// Send the authenticated POST request
 	resp, body, errs := bksdk.authPost(targetUrl, "").End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	// Check if the request was successful
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody struct
@@ -279,6 +332,7 @@ func (bksdk *SDK) Balance() (response.Balance, error) {
 		return respBody, err
 	}
 
+	// Return the response object
 	return respBody, nil
 }
 
@@ -292,15 +346,21 @@ func (bksdk *SDK) Balance() (response.Balance, error) {
 // - response.WsToken: the response body containing the token.
 // - error: if there was an error making the request or parsing the response.
 func (bksdk *SDK) WsToken() (response.WsToken, error) {
+	// Create a variable to store the response body
 	var respBody response.WsToken
 
 	// Build the target URL for the API endpoint
-	targetUrl := bksdk.apiHost.JoinPath(api.MarketWstokenV3)
+	targetURL := bksdk.apiHost.JoinPath(api.MarketWstokenV3)
 
 	// Make the POST request to the API endpoint
-	resp, body, errs := bksdk.authPost(targetUrl, "").End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	resp, body, errs := bksdk.authPost(targetURL, "").End()
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	// Check if the response status code is not OK
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
@@ -309,6 +369,7 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 		return respBody, err
 	}
 
+	// Return the response body and no error
 	return respBody, nil
 }
 
@@ -316,6 +377,9 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 // The destination address does not need to be a trusted address.
 // This API is not enabled by default. Only KYB users can request this feature by contacting us via support@bitkub.com.
 func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
+
+	var respBody response.InternalWithdraw
+
 	// Create request body
 	reqBody := map[string]interface{}{
 		"cur": currency,
@@ -335,12 +399,15 @@ func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string,
 
 	// Send authenticated POST request with request body
 	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return response.InternalWithdraw{}, errs[0]
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
 	// Unmarshal response body
-	var respBody response.InternalWithdraw
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return response.InternalWithdraw{}, err
@@ -376,8 +443,12 @@ func (bksdk *SDK) DepositHistory(page, limit int) (response.DepositHistory, erro
 
 	// Send the authenticated POST request with the request body
 	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
@@ -418,8 +489,177 @@ func (bksdk *SDK) WithdrawHistory(page, limit int) (response.WithdrawHistory, er
 
 	// Send the authenticated POST request with the request body
 	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// PlaceBid creates a buy order by sending a POST request to the /api/v3/market/place-bid endpoint.
+// It takes the following parameters:
+// - sym: string - The symbol you want to trade (e.g. btc_thb).
+// - amt: float64 - Amount you want to spend with no trailing zero (e.g. 1000.00 is invalid, 1000 is ok).
+// - rat: float64 - Rate you want for the order with no trailing zero (e.g. 1000.00 is invalid, 1000 is ok).
+// - typ: string - Order type: limit or market (for market order, please specify rat as 0).
+// - client_id: string - Your id for reference (not required).
+func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) (response.PlaceBid, error) {
+	// Initialize the response variable
+	var respBody response.PlaceBid
+
+	// Create the request body
+	reqBody := request.PlaceBid{
+		Symbol:   sym,
+		Amount:   amt,
+		Rate:     rat,
+		Type:     typ,
+		ClientID: client_id,
+	}
+
+	// Validate the request body
+	err := reqBody.Validate()
+	if err != nil {
+		return respBody, err
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.MarketPlaceBidV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// PlaceAsk creates a sell order.
+// Endpoint: /api/v3/market/place-ask
+// Method: POST
+// Parameters:
+// - sym: string - The symbol you want to trade (e.g. btc_thb).
+// - amt: float64 - Amount you want to spend with no trailing zero (e.g. 1000.00 is invalid, 1000 is ok).
+// - rat: float64 - Rate you want for the order with no trailing zero (e.g. 1000.00 is invalid, 1000 is ok).
+// - typ: string - Order type: limit or market (for market order, please specify rat as 0).
+// - client_id: string - Your id for reference (not required).
+// It returns the response body and an error (if any).
+func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) (response.PlaceAsk, error) {
+	// Initialize the response variable
+	var respBody response.PlaceAsk
+
+	// Create the request body
+	reqBody := request.PlaceAsk{
+		Symbol:   sym,
+		Amount:   amt,
+		Rate:     rat,
+		Type:     typ,
+		ClientID: client_id,
+	}
+
+	// Validate the request body
+	err := reqBody.Validate()
+	if err != nil {
+		return respBody, err
+	}
+
+	// Convert the request body to JSON
+	reqBodyByte, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.MarketPlaceAskV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Endpoint: /api/v3/market/cancel-order
+// Method: POST
+// Desc: Cancel an open order
+// Parameters:
+// - sym string The symbol. Please note that the current endpoint requires the symbol thb_btc. However, it will be changed to btc_thb soon and you will need to update the configurations accordingly for uninterrupted API functionality.
+// - id string Order id you wish to cancel
+// - sd string Order side: buy or sell
+// - hash string Cancel an order with order hash (optional). You don't need to specify sym, id, and sd when you specify order hash.
+func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, error) {
+	// Initialize the response variable
+	var respBody response.CancelOrder
+
+	// Create the request body
+	reqBody := request.CancelOrder{
+		Symbol: sym,
+		ID:     id,
+		Side:   sd,
+		Hash:   hash,
+	}
+
+	// Validate the request body
+	err := reqBody.Validate()
+	if err != nil {
+		return respBody, err
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.MarketCancelOrderV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	// Parse the response body

@@ -265,3 +265,39 @@ type WithdrawHistory struct {
 		Last int `json:"last"`
 	} `json:"pagination"`
 }
+
+type PlaceBid struct {
+	Error  int `json:"error"`
+	Result struct {
+		ID   string  `json:"id"`
+		Hash string  `json:"hash"`
+		Typ  string  `json:"typ"`
+		Amt  int     `json:"amt"`
+		Rat  int     `json:"rat"`
+		Fee  float64 `json:"fee"`
+		Cre  float64 `json:"cre"`
+		Rec  float64 `json:"rec"`
+		Ts   int     `json:"ts"`
+		Ci   string  `json:"ci"`
+	} `json:"result"`
+}
+
+type PlaceAsk struct {
+	Error  int `json:"error"`
+	Result struct {
+		ID   string  `json:"id"`
+		Hash string  `json:"hash"`
+		Typ  string  `json:"typ"`
+		Amt  float64 `json:"amt"`
+		Rat  int     `json:"rat"`
+		Fee  float64 `json:"fee"`
+		Cre  float64 `json:"cre"`
+		Rec  int     `json:"rec"`
+		Ts   int     `json:"ts"`
+		Ci   string  `json:"ci"`
+	} `json:"result"`
+}
+
+type CancelOrder struct {
+	Error int `json:"error"`
+}
