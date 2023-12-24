@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/naruebaet/bitkub-sdk/bksdk/api"
 	"github.com/naruebaet/bitkub-sdk/bksdk/bkerr"
@@ -658,6 +659,147 @@ func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, e
 		return respBody, errs[0]
 	}
 
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Addresses is a function that lists all crypto addresses.
+// It sends a POST request to the /api/v3/crypto/addresses endpoint
+// with optional pagination parameters (page and limit).
+// It returns a response containing the crypto addresses and an error, if any.
+func (bksdk *SDK) Addresses(page, limit int) (response.CryptoAddresses, error) {
+	// Initialize the response variable
+	var respBody response.CryptoAddresses
+
+	// Create the request body
+	reqBody := map[string]int{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoAddresses)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Endpoint: /api/v3/crypto/generate-address
+// Method: POST
+// Desc: Generate a new crypto address (will replace existing adresses; previous address can still be used to received funds)
+// Parameters:
+// - sym string Symbol (e.g. THB_BTC, THB_ETH, etc.)
+func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress, error) {
+	// Initialize the response variable
+	var respBody response.CryptoGenerateAddress
+
+	// symbol to upper case
+
+	// create the request body
+	reqBody := map[string]string{
+		"sym": strings.ToUpper(symbol),
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoGenerateAddress)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Endpoint: /api/v3/crypto/withdraw
+// Method: POST
+// Desc: Make a withdrawal to a trusted address.
+// Parameters:
+// - cur string Currency for withdrawal (e.g. BTC, ETH)
+// - amt float Amount you want to withdraw
+// - adr string Address to which you want to withdraw
+// - mem string (Optional) Memo or destination tag to which you want to withdraw
+// - net string Cryptocurrency network to withdraw
+// No default value of this field. Please find the available network from the link as follows. https://www.bitkub.com/fee/cryptocurrency
+// For example ETH refers to ERC-20.
+// For request on ERC-20, please assign the net value as ETH.
+// For request on BEP-20, please assign the net value as BSC.
+// For request on KAP-20, please assign the net value as BKC.
+func (bksdk *SDK) Withdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error) {
+	// Initialize the response variable
+	var respBody response.CryptoWithdraw
+
+	// Create the request body
+	reqBody := map[string]interface{}{
+		"cur": currency,
+		"amt": amount,
+		"adr": address,
+		"mem": memo,
+		"net": network,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoWithdraw)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
 		return respBody, errors.New(body)
 	}

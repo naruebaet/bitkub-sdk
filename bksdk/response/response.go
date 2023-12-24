@@ -301,3 +301,39 @@ type PlaceAsk struct {
 type CancelOrder struct {
 	Error int `json:"error"`
 }
+
+type CryptoAddresses struct {
+	Error  int `json:"error"`
+	Result []struct {
+		Currency string `json:"currency"`
+		Address  string `json:"address"`
+		Tag      int    `json:"tag"`
+		Time     int    `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
+}
+
+type CryptoGenerateAddress struct {
+	Error  int `json:"error"`
+	Result []struct {
+		Currency string `json:"currency"`
+		Address  string `json:"address"`
+		Memo     string `json:"memo"`
+	} `json:"result"`
+}
+
+type CryptoWithdraw struct {
+	Error  int `json:"error"`
+	Result struct {
+		Txn string  `json:"txn"`
+		Adr string  `json:"adr"`
+		Mem string  `json:"mem"`
+		Cur string  `json:"cur"`
+		Amt float64 `json:"amt"`
+		Fee float64 `json:"fee"`
+		Ts  int     `json:"ts"`
+	} `json:"result"`
+}
