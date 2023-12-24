@@ -715,20 +715,26 @@ func (bksdk *SDK) Addresses(page, limit int) (response.CryptoAddresses, error) {
 	return respBody, nil
 }
 
-// Endpoint: /api/v3/crypto/generate-address
-// Method: POST
-// Desc: Generate a new crypto address (will replace existing adresses; previous address can still be used to received funds)
+// GenerateAddress generates a new crypto address for the given symbol.
+// The previous address can still be used to receive funds.
+// It makes a POST request to the /api/v3/crypto/generate-address endpoint.
+//
 // Parameters:
-// - sym string Symbol (e.g. THB_BTC, THB_ETH, etc.)
+// - symbol: The symbol for which to generate the address (e.g. THB_BTC, THB_ETH, etc.)
+//
+// Returns:
+// - response: The generated address and other relevant information.
+// - error: An error if the request fails or if there is an issue parsing the response.
 func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress, error) {
 	// Initialize the response variable
 	var respBody response.CryptoGenerateAddress
 
-	// symbol to upper case
+	// Convert the symbol to upper case
+	symbol = strings.ToUpper(symbol)
 
-	// create the request body
+	// Create the request body
 	reqBody := map[string]string{
-		"sym": strings.ToUpper(symbol),
+		"sym": symbol,
 	}
 
 	// Convert the request body to JSON
@@ -760,20 +766,24 @@ func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress
 	return respBody, nil
 }
 
+// Withdraw makes a withdrawal to a trusted address.
 // Endpoint: /api/v3/crypto/withdraw
 // Method: POST
-// Desc: Make a withdrawal to a trusted address.
 // Parameters:
-// - cur string Currency for withdrawal (e.g. BTC, ETH)
-// - amt float Amount you want to withdraw
-// - adr string Address to which you want to withdraw
-// - mem string (Optional) Memo or destination tag to which you want to withdraw
-// - net string Cryptocurrency network to withdraw
-// No default value of this field. Please find the available network from the link as follows. https://www.bitkub.com/fee/cryptocurrency
-// For example ETH refers to ERC-20.
-// For request on ERC-20, please assign the net value as ETH.
-// For request on BEP-20, please assign the net value as BSC.
-// For request on KAP-20, please assign the net value as BKC.
+//   - currency: Currency for withdrawal (e.g. BTC, ETH)
+//   - amount: Amount you want to withdraw
+//   - address: Address to which you want to withdraw
+//   - memo: (Optional) Memo or destination tag to which you want to withdraw
+//   - network: Cryptocurrency network to withdraw
+//     No default value of this field. Please find the available network from the link as follows. https://www.bitkub.com/fee/cryptocurrency
+//     For example ETH refers to ERC-20.
+//     For request on ERC-20, please assign the network value as ETH.
+//     For request on BEP-20, please assign the network value as BSC.
+//     For request on KAP-20, please assign the network value as BKC.
+//
+// Returns:
+// - response: The response body with the withdrawal details
+// - error: An error if the withdrawal request fails
 func (bksdk *SDK) Withdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error) {
 	// Initialize the response variable
 	var respBody response.CryptoWithdraw
@@ -789,6 +799,9 @@ func (bksdk *SDK) Withdraw(currency string, address string, memo string, amount 
 
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
 
 	// Construct the target URL
 	targetURL := bksdk.apiHost.JoinPath(api.CryptoWithdraw)
