@@ -3,6 +3,8 @@ package request
 import (
 	"errors"
 	"strings"
+
+	validate "github.com/go-playground/validator/v10"
 )
 
 var resolutions = map[string]string{
@@ -23,4 +25,43 @@ func ValidateResolution(value string) (string, error) {
 	}
 
 	return resolution, nil
+}
+
+type PlaceBid struct {
+	Symbol   string  `json:"sym"`
+	Amount   float64 `json:"amt"`
+	Rate     float64 `json:"rat"`
+	Type     string  `json:"typ" validate:"oneof=limit market"`
+	ClientID string  `json:"client_id"`
+}
+
+// validate type of bid
+func (p *PlaceBid) Validate() error {
+	validate := validate.New()
+	return validate.Struct(p)
+}
+
+type PlaceAsk struct {
+	Symbol   string  `json:"sym"`
+	Amount   float64 `json:"amt"`
+	Rate     float64 `json:"rat"`
+	Type     string  `json:"typ" validate:"oneof=limit market"`
+	ClientID string  `json:"client_id"`
+}
+
+func (p *PlaceAsk) Validate() error {
+	validate := validate.New()
+	return validate.Struct(p)
+}
+
+type CancelOrder struct {
+	Symbol string `json:"sym"`
+	ID     string `json:"id"`
+	Side   string `json:"sd" oneof:"buy sell"`
+	Hash   string `json:"hash"`
+}
+
+func (p *CancelOrder) Validate() error {
+	validate := validate.New()
+	return validate.Struct(p)
 }

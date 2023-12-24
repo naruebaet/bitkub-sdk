@@ -66,9 +66,9 @@ All secure endpoints require authentication and use the method POST. These are o
 #### Market endpoints
 * ✅Wallet();
 * ✅Balances();
-* ⏳PlaceBid();
-* ⏳PlaceAsk();
-* ⏳CancelOrder();
+* ✅PlaceBid();
+* ✅PlaceAsk();
+* ✅CancelOrder();
 * ✅Wstoken();
 * ✅MyOpenOrders();
 * ✅MyOrderHistory();

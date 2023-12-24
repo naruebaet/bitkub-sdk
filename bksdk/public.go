@@ -21,8 +21,8 @@ func (bksdk *SDK) GetStatus() (response.Status, error) {
 
 	targetUrl := bksdk.apiHost.JoinPath(api.Status)
 
-	resp, body, errs := bksdk.req.Get(targetUrl.String()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	_, body, errs := bksdk.req.Get(targetUrl.String()).End()
+	if errs != nil {
 		return respBody, errs[0]
 	}
 
@@ -41,9 +41,10 @@ func (bksdk *SDK) GetServerTime() (string, error) {
 	targetUrl := bksdk.apiHost.JoinPath(api.ServertimeV3)
 
 	resp, timestamp, errs := bksdk.req.Get(targetUrl.String()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil || resp.StatusCode != http.StatusOK {
 		return "0", errs[0]
 	}
+
 	return timestamp, nil
 }
 
@@ -56,8 +57,12 @@ func (bksdk *SDK) GetSymbols() (response.MarketSymbols, error) {
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketSymbol)
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -90,8 +95,12 @@ func (bksdk *SDK) GetTicker(sym string) (response.MarketTicker, error) {
 	}
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -119,8 +128,12 @@ func (bksdk *SDK) GetTrade(sym string, limit int) (response.MarketTrades, error)
 	queryValues.Add("lmt", strconv.Itoa(limit))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -152,8 +165,12 @@ func (bksdk *SDK) GetBids(sym string, limit int) (response.MarketBids, error) {
 	queryValues.Add("lmt", strconv.Itoa(limit))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -185,8 +202,12 @@ func (bksdk *SDK) GetAsks(sym string, limit int) (response.MarketAsks, error) {
 	queryValues.Add("lmt", strconv.Itoa(limit))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -218,8 +239,12 @@ func (bksdk *SDK) GetBooks(sym string, limit int) (response.MarketBooks, error) 
 	queryValues.Add("lmt", strconv.Itoa(limit))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -251,8 +276,12 @@ func (bksdk *SDK) GetDepth(sym string, limit int) (response.MarketDepth, error) 
 	queryValues.Add("lmt", strconv.Itoa(limit))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err := json.Unmarshal([]byte(body), &respBody)
@@ -290,8 +319,12 @@ func (bksdk *SDK) GetHistory(symbol string, resolution string, from int, to int)
 	queryValues.Add("to", strconv.Itoa(to))
 
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
-	if errs != nil && resp.StatusCode != http.StatusOK {
+	if errs != nil {
 		return respBody, errs[0]
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
 	}
 
 	err = json.Unmarshal([]byte(body), &respBody)
