@@ -76,18 +76,18 @@ All secure endpoints require authentication and use the method POST. These are o
 * ✅OrderInfoByHash();
 
 #### Crypto endpoints
-* ✅InternalWithdraw();
-* ✅Addresses();
-* ✅Withdraw();
-* ✅DepositHistory();
-* ✅WithdrawHistory();
-* ✅GenerateAddress();
+* ✅CryptoInternalWithdraw();
+* ✅CryptoAddresses();
+* ✅CryptoWithdraw();
+* ✅CryptoDepositHistory();
+* ✅CryptoWithdrawHistory();
+* ✅CryptoGenerateAddress();
 
 #### Fiat endpoints
-* ⏳Accounts();
-* ⏳Withdraw();
-* ⏳DepositHistory();
-* ⏳WithdrawHistory();
+* ✅FiatAccounts();
+* ✅FiatWithdraw();
+* ✅FiatDepositHistory();
+* ✅FiatWithdrawHistory();
 
 #### Error codes
 Refer to the following descriptions:
@@ -140,6 +140,12 @@ Refer to the following descriptions:
 | 56   | User has been suspended from purchasing                            |
 | 57   | User has been suspended from selling                               |
 | 90   | Server error (please contact support)                              |
+
+## Next in BKSDK v2
+- Functional programming optimized
+- Code refactor
+- SDK file size optimized
+- Improve function name
 
 ## Referrence
 - Please follow the link if you need to read more content. [Official bitkub public api documents](https://github.com/bitkub/bitkub-official-api-docs/blob/master/restful-api.md)

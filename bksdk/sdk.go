@@ -32,10 +32,30 @@ type SDKEndpoints interface {
 	Limits() (response.Limits, error)
 
 	// Market secure endpoints
+	Wallet() (response.Wallet, error)
+	Balances() (response.Balances, error)
+	PlaceBid(sym string, amt, rat float64, typ, client_id string) (response.PlaceBid, error)
+	PlaceAsk(sym string, amt, rat float64, typ, client_id string) (response.PlaceAsk, error)
+	CancelOrder(sym, id, sd, hash string) (response.CancelOrder, error)
+	WsToken() (response.WsToken, error)
 	MyOpenOrder(sym string) (response.MyOpenOrder, error)
 	MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error)
 	OrderInfo(sym, orderId, side string) (response.OrderInfo, error)
 	OrderInfoByHash(hash string) (response.OrderInfo, error)
+
+	// Crypto secure endpoints
+	CryptoInternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error)
+	CryptoAddresses(page, limit int) (response.CryptoAddresses, error)
+	CryptoWithdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error)
+	CryptoDepositHistory(page, limit int) (response.DepositHistory, error)
+	CryptoWithdrawHistory(page, limit int) (response.WithdrawHistory, error)
+	CryptoGenerateAddress(symbol string) (response.CryptoGenerateAddress, error)
+
+	// Fiat secure endpoints
+	FiatAccounts(page int, limit int) (response.FiatAccounts, error)
+	FiatWithdraw(id string, amt float64) (response.FiatWithdraw, error)
+	FiatDepositHistory(page, limit int) (response.FiatDepositHistory, error)
+	FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHistory, error)
 }
 
 // New creates a new SDK instance with the provided apiKey and apiSecret.
