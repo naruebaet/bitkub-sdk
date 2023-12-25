@@ -202,7 +202,7 @@ type WalletResult struct {
 	Eth float64 `json:"ETH"`
 }
 
-type Balance struct {
+type Balances struct {
 	Error  int                      `json:"error"`
 	Result map[string]BalanceResult `json:"result"`
 }
@@ -336,4 +336,62 @@ type CryptoWithdraw struct {
 		Fee float64 `json:"fee"`
 		Ts  int     `json:"ts"`
 	} `json:"result"`
+}
+
+type FiatAccounts struct {
+	Error  int `json:"error"`
+	Result []struct {
+		ID   string `json:"id"`
+		Bank string `json:"bank"`
+		Name string `json:"name"`
+		Time int    `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
+}
+
+type FiatWithdraw struct {
+	Error  int `json:"error"`
+	Result struct {
+		Txn string `json:"txn"`
+		Acc string `json:"acc"`
+		Cur string `json:"cur"`
+		Amt int    `json:"amt"`
+		Fee int    `json:"fee"`
+		Rec int    `json:"rec"`
+		Ts  int    `json:"ts"`
+	} `json:"result"`
+}
+
+type FiatDepositHistory struct {
+	Error  int `json:"error"`
+	Result []struct {
+		TxnID    string  `json:"txn_id"`
+		Currency string  `json:"currency"`
+		Amount   float64 `json:"amount"`
+		Status   string  `json:"status"`
+		Time     int     `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
+}
+
+type FiatWithdrawHistory struct {
+	Error  int `json:"error"`
+	Result []struct {
+		TxnID    string `json:"txn_id"`
+		Currency string `json:"currency"`
+		Amount   string `json:"amount"`
+		Fee      int    `json:"fee"`
+		Status   string `json:"status"`
+		Time     int    `json:"time"`
+	} `json:"result"`
+	Pagination struct {
+		Page int `json:"page"`
+		Last int `json:"last"`
+	} `json:"pagination"`
 }

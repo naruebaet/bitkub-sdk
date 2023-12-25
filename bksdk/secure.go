@@ -3,6 +3,7 @@ package bksdk
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -309,9 +310,9 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 // Endpoint:  /api/v3/market/balances
 // Method: POST
 // Parameter: N/A
-func (bksdk *SDK) Balance() (response.Balance, error) {
+func (bksdk *SDK) Balances() (response.Balances, error) {
 	// Initialize the response object
-	var respBody response.Balance
+	var respBody response.Balances
 
 	// Construct the target URL
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketBalancesV3)
@@ -377,7 +378,7 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 // InternalWithdraw makes a withdrawal to an internal address.
 // The destination address does not need to be a trusted address.
 // This API is not enabled by default. Only KYB users can request this feature by contacting us via support@bitkub.com.
-func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
+func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
 
 	var respBody response.InternalWithdraw
 
@@ -425,7 +426,7 @@ func (bksdk *SDK) InternalWithdraw(currency string, address string, memo string,
 // Returns:
 // - response.DepositHistory: the deposit history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) DepositHistory(page, limit int) (response.DepositHistory, error) {
+func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory, error) {
 	var respBody response.DepositHistory
 
 	// Prepare the request body
@@ -469,7 +470,7 @@ func (bksdk *SDK) DepositHistory(page, limit int) (response.DepositHistory, erro
 // Returns:
 // - response.WithdrawHistory: the withdraw history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) WithdrawHistory(page, limit int) (response.WithdrawHistory, error) {
+func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHistory, error) {
 	// Initialize the response variable
 	var respBody response.WithdrawHistory
 
@@ -676,7 +677,7 @@ func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, e
 // It sends a POST request to the /api/v3/crypto/addresses endpoint
 // with optional pagination parameters (page and limit).
 // It returns a response containing the crypto addresses and an error, if any.
-func (bksdk *SDK) Addresses(page, limit int) (response.CryptoAddresses, error) {
+func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, error) {
 	// Initialize the response variable
 	var respBody response.CryptoAddresses
 
@@ -693,7 +694,7 @@ func (bksdk *SDK) Addresses(page, limit int) (response.CryptoAddresses, error) {
 	}
 
 	// Construct the target URL
-	targetURL := bksdk.apiHost.JoinPath(api.CryptoAddresses)
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoAddressesV3)
 
 	// Send the authenticated POST request with the request body
 	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
@@ -725,7 +726,7 @@ func (bksdk *SDK) Addresses(page, limit int) (response.CryptoAddresses, error) {
 // Returns:
 // - response: The generated address and other relevant information.
 // - error: An error if the request fails or if there is an issue parsing the response.
-func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress, error) {
+func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateAddress, error) {
 	// Initialize the response variable
 	var respBody response.CryptoGenerateAddress
 
@@ -744,7 +745,7 @@ func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress
 	}
 
 	// Construct the target URL
-	targetURL := bksdk.apiHost.JoinPath(api.CryptoGenerateAddress)
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoGenerateAddressV3)
 
 	// Send the authenticated POST request with the request body
 	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
@@ -784,7 +785,7 @@ func (bksdk *SDK) GenerateAddress(symbol string) (response.CryptoGenerateAddress
 // Returns:
 // - response: The response body with the withdrawal details
 // - error: An error if the withdrawal request fails
-func (bksdk *SDK) Withdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error) {
+func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error) {
 	// Initialize the response variable
 	var respBody response.CryptoWithdraw
 
@@ -804,7 +805,197 @@ func (bksdk *SDK) Withdraw(currency string, address string, memo string, amount 
 	}
 
 	// Construct the target URL
-	targetURL := bksdk.apiHost.JoinPath(api.CryptoWithdraw)
+	targetURL := bksdk.apiHost.JoinPath(api.CryptoWithdrawV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Accounts lists all approved bank accounts.
+//
+// Parameters:
+// - page: int, Page number (optional)
+// - limit: int, Limit number of results (optional)
+//
+// Returns:
+// - response.FiatAccounts: List of approved bank accounts
+// - error: Error if any occurs
+func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, error) {
+	// Initialize the response variable
+	var respBody response.FiatAccounts
+
+	// Create the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.FiatAccountsV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// FiatWithdraw makes a withdrawal to an approved bank account.
+// It sends a POST request to the /api/v3/fiat/withdraw endpoint.
+// Parameters:
+// - id: string, the bank account id
+// - amt: float64, the amount to withdraw
+// Returns:
+// - response.FiatWithdraw: the response body
+// - error: any error that occurred during the request
+func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, error) {
+	// Initialize the response variable
+	var respBody response.FiatWithdraw
+
+	// Create the request body
+	reqBody := map[string]interface{}{
+		"id":  id,
+		"amt": amt,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.FiatWithdrawV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// Endpoint: /api/v3/fiat/deposit-history
+// Method: POST
+// Desc: List fiat deposit history
+// Parameters:
+// - p int Page (optional)
+// - lmt int Limit (optional)
+// Function: FiatDepositHistory retrieves the fiat deposit history using the specified page and limit.
+// It returns a response object containing the deposit history and an error if any.
+func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHistory, error) {
+	// Initialize the response variable
+	var respBody response.FiatDepositHistory
+
+	// Create the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.FiatDepositHistoryV3)
+
+	// Send the authenticated POST request with the request body
+	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	if errs != nil {
+		return respBody, errs[0]
+	}
+
+	// Check the response status code
+	if resp.StatusCode != http.StatusOK {
+		return respBody, errors.New(body)
+	}
+
+	// Parse the response body
+	err = json.Unmarshal([]byte(body), &respBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	return respBody, nil
+}
+
+// FiatWithdrawHistory retrieves the list of fiat withdrawal history.
+//
+// Parameters:
+// - page: Page number (optional)
+// - limit: Limit number (optional)
+//
+// Returns:
+// - response.FiatWithdrawHistory: The response body containing the fiat withdrawal history
+// - error: Any error that occurred during the API request
+func (bksdk *SDK) FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHistory, error) {
+	// Initialize the response variable
+	var respBody response.FiatWithdrawHistory
+
+	// Create the request body
+	reqBody := map[string]interface{}{
+		"p":   page,
+		"lmt": limit,
+	}
+
+	// Convert the request body to JSON
+	jsonReqBody, err := json.Marshal(reqBody)
+	if err != nil {
+		return respBody, err
+	}
+
+	// Construct the target URL
+	targetURL := bksdk.apiHost.JoinPath(api.FiatWithdrawHistoryV3)
 
 	// Send the authenticated POST request with the request body
 	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
