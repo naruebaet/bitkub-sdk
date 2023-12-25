@@ -3,8 +3,6 @@ package bksdk
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
-	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
@@ -35,14 +33,9 @@ func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 	queryValues.Add("sym", sym)
 
 	// Make the authenticated GET request
-	resp, body, errs := bksdk.authGet(targetUrl, queryValues).End()
+	_, body, errs := bksdk.authGet(targetUrl, queryValues).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if there was an error in the API response
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
@@ -100,20 +93,20 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (respo
 	}
 
 	// Make the authenticated GET request
-	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
+	_, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if the request was successful
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
@@ -141,14 +134,9 @@ func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, erro
 	queryValues.Add("sd", side)
 
 	// Make the GET request and get the response
-	resp, body, errs := bksdk.authGet(targetURL, queryValues).End()
+	_, body, errs := bksdk.authGet(targetURL, queryValues).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into respBody
@@ -187,14 +175,9 @@ func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
 	queVal.Add("hash", hash)
 
 	// Send the GET request to the target URL with the query parameters
-	resp, body, errs := bksdk.authGet(targetUrl, queVal).End()
+	_, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if the response status code is not OK
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body and store it in respBody
@@ -221,14 +204,9 @@ func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
 	targetUrl := bksdk.apiHost.JoinPath(api.UserTradingCreditsV3)
 
 	// Make a POST request to the API endpoint
-	resp, body, errs := bksdk.authPost(targetUrl, "").End()
+	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if the request was successful
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
@@ -254,13 +232,9 @@ func (bksdk *SDK) Limits() (response.Limits, error) {
 	targetURL := bksdk.apiHost.JoinPath(api.UserLimitsV3)
 
 	// Send a POST request to the target URL
-	resp, body, errs := bksdk.authPost(targetURL, "").End()
+	_, body, errs := bksdk.authPost(targetURL, "").End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody struct
@@ -287,19 +261,20 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketWalletV3)
 
 	// Make the API call
-	resp, body, errs := bksdk.authPost(targetUrl, "").End()
+	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the API response
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -318,20 +293,20 @@ func (bksdk *SDK) Balances() (response.Balances, error) {
 	targetUrl := bksdk.apiHost.JoinPath(api.MarketBalancesV3)
 
 	// Send the authenticated POST request
-	resp, body, errs := bksdk.authPost(targetUrl, "").End()
+	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if the request was successful
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody struct
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response object
@@ -355,20 +330,20 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 	targetURL := bksdk.apiHost.JoinPath(api.MarketWstokenV3)
 
 	// Make the POST request to the API endpoint
-	resp, body, errs := bksdk.authPost(targetURL, "").End()
+	_, body, errs := bksdk.authPost(targetURL, "").End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check if the response status code is not OK
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and no error
@@ -400,19 +375,20 @@ func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo s
 	targetUrl := bksdk.apiHost.JoinPath(api.CryptoInternalWithdrawV3)
 
 	// Send authenticated POST request with request body
-	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
 		return response.InternalWithdraw{}, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Unmarshal response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return response.InternalWithdraw{}, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -444,19 +420,20 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory
 	targetUrl := bksdk.apiHost.JoinPath(api.CryptoDepositHistoryV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -490,19 +467,20 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHisto
 	targetUrl := bksdk.apiHost.JoinPath(api.CryptoWithdrawHistoryV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
+	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -544,19 +522,20 @@ func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) 
 	targetURL := bksdk.apiHost.JoinPath(api.MarketPlaceBidV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -601,19 +580,20 @@ func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) 
 	targetURL := bksdk.apiHost.JoinPath(api.MarketPlaceAskV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -655,19 +635,20 @@ func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, e
 	targetURL := bksdk.apiHost.JoinPath(api.MarketCancelOrderV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -697,20 +678,20 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, er
 	targetURL := bksdk.apiHost.JoinPath(api.CryptoAddressesV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -748,20 +729,20 @@ func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateA
 	targetURL := bksdk.apiHost.JoinPath(api.CryptoGenerateAddressV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -808,20 +789,20 @@ func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, a
 	targetURL := bksdk.apiHost.JoinPath(api.CryptoWithdrawV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -856,20 +837,20 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, erro
 	targetURL := bksdk.apiHost.JoinPath(api.FiatAccountsV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -903,20 +884,20 @@ func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, e
 	targetURL := bksdk.apiHost.JoinPath(api.FiatWithdrawV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -950,20 +931,20 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHisto
 	targetURL := bksdk.apiHost.JoinPath(api.FiatDepositHistoryV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil
@@ -998,20 +979,20 @@ func (bksdk *SDK) FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHis
 	targetURL := bksdk.apiHost.JoinPath(api.FiatWithdrawHistoryV3)
 
 	// Send the authenticated POST request with the request body
-	resp, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
+	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
 		return respBody, errs[0]
-	}
-
-	// Check the response status code
-	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
 		return respBody, err
+	}
+
+	// Check if the response body contains an error
+	if respBody.Error != 0 {
+		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	return respBody, nil

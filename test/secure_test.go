@@ -8,37 +8,38 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/naruebaet/bitkub-sdk/bksdk"
+	"github.com/naruebaet/bitkub-sdk/bksdk/bkerr"
 )
 
-func TestTradingCredit(t *testing.T) {
-
+func init() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
+}
 
-	sdk := bksdk.New(os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+func TestTradingCredit(t *testing.T) {
+	apiKey := os.Getenv("API_KEY")
+	apiSecret := os.Getenv("API_SECRET")
 
+	sdk := bksdk.New(apiKey, apiSecret)
 	resp, _ := sdk.TradingCredit()
 
 	res, _ := bksdk.PrettyStruct(resp)
-
 	fmt.Println(res)
 }
 
-// test FiatWithdrawHistory
 func TestFiatWithdrawHistory(t *testing.T) {
-
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	sdk := bksdk.New(os.Getenv("API_KEY"), os.Getenv("API_SECRET"))
+	apiKey := os.Getenv("API_KEY")
+	apiSecret := os.Getenv("API_SECRET")
+	sdk := bksdk.New(apiKey, apiSecret)
 
 	resp, _ := sdk.FiatWithdrawHistory(1, 10)
-
 	res, _ := bksdk.PrettyStruct(resp)
+
+	if resp.Error != 0 {
+		fmt.Println(bkerr.ErrorText(resp.Error))
+	}
 
 	fmt.Println(res)
 }
