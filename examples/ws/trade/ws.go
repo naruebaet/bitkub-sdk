@@ -34,7 +34,7 @@ func main() {
 	// Create the streamLine string from the symbols.
 	var streams []string
 	for _, sym := range symbols.Result {
-		streams = append(streams, fmt.Sprintf(bksdk.WS_TICKER_STREAM, sym.Symbol))
+		streams = append(streams, fmt.Sprintf(bksdk.WS_TRADE_STREAM, sym.Symbol))
 	}
 	streamLine := strings.Join(streams, ",")
 
@@ -64,15 +64,17 @@ func main() {
 			}
 
 			// in this case we need to parse the message to ws ticker type
-			var wsticker response.WsTicker
-			err := json.Unmarshal([]byte(raw), &wsticker)
+			var wsTrade response.WsTrade
+			err := json.Unmarshal([]byte(raw), &wsTrade)
 			if err != nil {
+				fmt.Println("---------ERR----------")
 				fmt.Println(err)
+				fmt.Println(raw)
+				fmt.Println("---------ERR----------")
 				continue
 			}
 
-			fmt.Printf("Ticker : %s, Last: %f\n", wsticker.Stream, wsticker.Last)
-
+			fmt.Printf("Trade : %s, Txn: %s, Rate: %f\n", wsTrade.Stream[17:], wsTrade.Txn, wsTrade.Rat)
 		}
 	}
 }
