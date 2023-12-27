@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/signal"
@@ -9,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/naruebaet/bitkub-sdk/bksdk"
+	"github.com/naruebaet/bitkub-sdk/bksdk/response"
 )
 
 // main is the entry point of the program.
@@ -32,7 +34,7 @@ func main() {
 	// Create the streamLine string from the symbols.
 	var streams []string
 	for _, sym := range symbols.Result {
-		streams = append(streams, fmt.Sprintf(bksdk.WS_TRADE_STREAM, sym.Symbol))
+		streams = append(streams, fmt.Sprintf(bksdk.WS_TICKER_STREAM, sym.Symbol))
 	}
 	streamLine := strings.Join(streams, ",")
 
@@ -62,16 +64,15 @@ func main() {
 			}
 
 			// in this case we need to parse the message to ws ticker type
-			// var wsticker response.WsTicker
-			// err := json.Unmarshal([]byte(raw), &wsticker)
-			// if err != nil {
-			// 	fmt.Println(err)
-			// 	continue
-			// }
+			var wsticker response.WsTicker
+			err := json.Unmarshal([]byte(raw), &wsticker)
+			if err != nil {
+				fmt.Println(err)
+				continue
+			}
 
-			// fmt.Printf("Ticker : %s, Last: %f\n", wsticker.Stream, wsticker.Last)
+			fmt.Printf("Ticker : %s, Last: %f\n", wsticker.Stream, wsticker.Last)
 
-			fmt.Println(raw)
 		}
 	}
 }

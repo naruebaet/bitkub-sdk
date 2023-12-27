@@ -29,10 +29,10 @@ func ValidateResolution(value string) (string, error) {
 
 type PlaceBid struct {
 	Symbol   string  `json:"sym"`
-	Amount   float64 `json:"amt"`
-	Rate     float64 `json:"rat"`
 	Type     string  `json:"typ" validate:"oneof=limit market"`
 	ClientID string  `json:"client_id"`
+	Amount   float64 `json:"amt"`
+	Rate     float64 `json:"rat"`
 }
 
 // validate type of bid
@@ -43,10 +43,10 @@ func (p *PlaceBid) Validate() error {
 
 type PlaceAsk struct {
 	Symbol   string  `json:"sym"`
-	Amount   float64 `json:"amt"`
-	Rate     float64 `json:"rat"`
 	Type     string  `json:"typ" validate:"oneof=limit market"`
 	ClientID string  `json:"client_id"`
+	Amount   float64 `json:"amt"`
+	Rate     float64 `json:"rat"`
 }
 
 func (p *PlaceAsk) Validate() error {
