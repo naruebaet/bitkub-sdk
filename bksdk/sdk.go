@@ -9,9 +9,9 @@ import (
 
 type SDK struct {
 	apiHost   *url.URL
+	req       *gorequest.SuperAgent
 	apiKey    string
 	apiSecret string
-	req       *gorequest.SuperAgent
 }
 
 type SDKEndpoints interface {

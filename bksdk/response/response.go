@@ -395,3 +395,34 @@ type FiatWithdrawHistory struct {
 		Last int `json:"last"`
 	} `json:"pagination"`
 }
+
+// websocket response
+type WsTrade struct {
+	Amt    float64 `json:"amt"`
+	Bid    string  `json:"bid"`
+	Rat    float64 `json:"rat"`
+	Sid    string  `json:"sid"`
+	Stream string  `json:"stream"`
+	Sym    string  `json:"sym"`
+	Ts     int     `json:"ts"`
+	Txn    string  `json:"txn"`
+}
+
+type WsTicker struct {
+	Stream         string  `json:"stream"`
+	ID             int     `json:"id"`
+	Last           float64 `json:"last"`
+	LowestAsk      float64 `json:"lowestAsk"`
+	LowestAskSize  float64 `json:"lowestAskSize"`
+	HighestBid     float64 `json:"highestBid"`
+	HighestBidSize float64 `json:"highestBidSize"`
+	Change         float64 `json:"change"`
+	PercentChange  float64 `json:"percentChange"`
+	BaseVolume     float64 `json:"baseVolume"`
+	QuoteVolume    float64 `json:"quoteVolume"`
+	IsFrozen       int     `json:"isFrozen"`
+	High24Hr       float64 `json:"high24hr"`
+	Low24Hr        float64 `json:"low24hr"`
+	Open           float64 `json:"open"`
+	Close          float64 `json:"close"`
+}
