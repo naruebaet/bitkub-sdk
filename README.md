@@ -90,7 +90,7 @@ All secure endpoints require authentication and use the method POST. These are o
 * ✅FiatWithdrawHistory();
 
 #### Websocket channel
-In this project, you can connect a websocket to a Bitkub websocket and read data from the websocket via the Golang channel, for [Title](examples/ws/ws.go), here!
+In this project, you can connect a websocket to a Bitkub websocket and read data from the websocket via the Golang channel, for [Example](examples/ws), here!
 ``` golang
 // for example connection
 // package...
