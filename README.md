@@ -89,6 +89,37 @@ All secure endpoints require authentication and use the method POST. These are o
 * ✅FiatDepositHistory();
 * ✅FiatWithdrawHistory();
 
+#### Websocket channel
+In this project, you can connect a websocket to a Bitkub websocket and read data from the websocket via the Golang channel, for [Title](examples/ws/ws.go), here!
+``` golang
+// for example connection
+// package...
+// import...
+
+func main(){
+    // Create a context with a timeout of 1 minute.
+	ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+
+    // create channel reader
+    reader := make(chan string)
+	defer close(reader)
+
+    // create stream name
+    streamName := fmt.Sprintf(bksdk.WS_TICKER_STREAM,"thb_btc")
+
+    bksdk.CreateWsConnection(streamName, reader, ctx)
+
+    for {
+        msg := <-reader
+        if msg == "Connection closed" {
+            return
+        }
+        fmt.Println(msg)
+    }
+}
+
+```
+ 
 #### Error codes
 Refer to the following descriptions:
 
