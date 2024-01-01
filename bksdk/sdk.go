@@ -39,23 +39,23 @@ type SDKEndpoints interface {
 	CancelOrder(sym, id, sd, hash string) (response.CancelOrder, error)
 	WsToken() (token string, err error)
 	MyOpenOrder(sym string) ([]response.MyOpenOrderResult, error)
-	MyOrderHistory(sym string, page, limit, start, end int) ([]response.MyOrderHistoryResult, error)
+	MyOrderHistory(sym string, page, limit, start, end int) ([]response.MyOrderHistoryResult, response.BKPaginate, error)
 	OrderInfo(sym, orderId, side string) (response.OrderInfoResult, error)
 	OrderInfoByHash(hash string) (response.OrderInfoResult, error)
 
 	// Crypto secure endpoints
 	CryptoInternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdrawResult, error)
-	CryptoAddresses(page, limit int) ([]response.CryptoAddressesResult, error)
+	CryptoAddresses(page, limit int) ([]response.CryptoAddressesResult, response.BKPaginate, error)
 	CryptoWithdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdrawResult, error)
-	CryptoDepositHistory(page, limit int) ([]response.DepositHistoryResult, error)
-	CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHistoryResult, error)
+	CryptoDepositHistory(page, limit int) ([]response.DepositHistoryResult, response.BKPaginate, error)
+	CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHistoryResult, response.BKPaginate, error)
 	CryptoGenerateAddress(symbol string) ([]response.CryptoGenerateAddressResult, error)
 
 	// Fiat secure endpoints
-	FiatAccounts(page int, limit int) ([]response.FiatAccountsResult, error)
+	FiatAccounts(page int, limit int) ([]response.FiatAccountsResult, response.BKPaginate, error)
 	FiatWithdraw(id string, amt float64) (response.FiatWithdrawResult, error)
-	FiatDepositHistory(page, limit int) ([]response.FiatDepositHistoryResult, error)
-	FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawHistoryResult, error)
+	FiatDepositHistory(page, limit int) ([]response.FiatDepositHistoryResult, response.BKPaginate, error)
+	FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawHistoryResult, response.BKPaginate, error)
 }
 
 // New creates a new SDK instance with the provided apiKey and apiSecret.
