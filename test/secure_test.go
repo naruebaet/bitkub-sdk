@@ -33,7 +33,7 @@ func TestFiatWithdrawHistory(t *testing.T) {
 	apiSecret := os.Getenv("API_SECRET")
 	sdk := bksdk.New(apiKey, apiSecret)
 
-	resp, _ := sdk.FiatWithdrawHistory(1, 10)
+	resp, _, _ := sdk.FiatWithdrawHistory(1, 10)
 	res, _ := bksdk.PrettyStruct(resp)
 
 	fmt.Println(res)
@@ -44,7 +44,7 @@ func TestFiatDepositHistory(t *testing.T) {
 	apiSecret := os.Getenv("API_SECRET")
 	sdk := bksdk.New(apiKey, apiSecret)
 
-	resp, _ := sdk.FiatDepositHistory(1, 10)
+	resp, _, _ := sdk.FiatDepositHistory(1, 10)
 	res, _ := bksdk.PrettyStruct(resp)
 
 	fmt.Println(res)

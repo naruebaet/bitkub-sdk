@@ -67,7 +67,7 @@ func (bksdk *SDK) MyOpenOrder(sym string) ([]response.MyOpenOrderResult, error) 
 // Returns:
 //   - response.MyOrderHistory: The response body containing the order history
 //   - error: An error if the request fails
-func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) ([]response.MyOrderHistoryResult, error) {
+func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) ([]response.MyOrderHistoryResult, response.BKPaginate, error) {
 	// Initialize the response body
 	var respBody response.MyOrderHistory
 
@@ -95,22 +95,22 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) ([]res
 	// Make the authenticated GET request
 	_, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // OrderInfo returns information regarding the specified order.
@@ -402,7 +402,7 @@ func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo s
 // Returns:
 // - response.DepositHistory: the deposit history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHistoryResult, error) {
+func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHistoryResult, response.BKPaginate, error) {
 	var respBody response.DepositHistory
 
 	// Prepare the request body
@@ -414,7 +414,7 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHisto
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	targetUrl := bksdk.apiHost.JoinPath(api.CryptoDepositHistoryV3)
@@ -422,21 +422,21 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHisto
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // WithdrawHistory returns a list of crypto withdraw history.
@@ -447,7 +447,7 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHisto
 // Returns:
 // - response.WithdrawHistory: the withdraw history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHistoryResult, error) {
+func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHistoryResult, response.BKPaginate, error) {
 	// Initialize the response variable
 	var respBody response.WithdrawHistory
 
@@ -460,7 +460,7 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHis
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Construct the target URL
@@ -469,21 +469,21 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHis
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // PlaceBid creates a buy order by sending a POST request to the /api/v3/market/place-bid endpoint.
@@ -658,7 +658,7 @@ func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, e
 // It sends a POST request to the /api/v3/crypto/addresses endpoint
 // with optional pagination parameters (page and limit).
 // It returns a response containing the crypto addresses and an error, if any.
-func (bksdk *SDK) CryptoAddresses(page, limit int) ([]response.CryptoAddressesResult, error) {
+func (bksdk *SDK) CryptoAddresses(page, limit int) ([]response.CryptoAddressesResult, response.BKPaginate, error) {
 	// Initialize the response variable
 	var respBody response.CryptoAddresses
 
@@ -671,7 +671,7 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) ([]response.CryptoAddressesRe
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Construct the target URL
@@ -680,21 +680,21 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) ([]response.CryptoAddressesRe
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // GenerateAddress generates a new crypto address for the given symbol.
@@ -817,7 +817,7 @@ func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, a
 // Returns:
 // - response.FiatAccounts: List of approved bank accounts
 // - error: Error if any occurs
-func (bksdk *SDK) FiatAccounts(page int, limit int) ([]response.FiatAccountsResult, error) {
+func (bksdk *SDK) FiatAccounts(page int, limit int) ([]response.FiatAccountsResult, response.BKPaginate, error) {
 	// Initialize the response variable
 	var respBody response.FiatAccounts
 
@@ -830,7 +830,7 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) ([]response.FiatAccountsResu
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Construct the target URL
@@ -839,21 +839,21 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) ([]response.FiatAccountsResu
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // FiatWithdraw makes a withdrawal to an approved bank account.
@@ -911,7 +911,7 @@ func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdrawRes
 // - lmt int Limit (optional)
 // Function: FiatDepositHistory retrieves the fiat deposit history using the specified page and limit.
 // It returns a response object containing the deposit history and an error if any.
-func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHistoryResult, error) {
+func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHistoryResult, response.BKPaginate, error) {
 	// Initialize the response variable
 	var respBody response.FiatDepositHistory
 
@@ -924,7 +924,7 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHis
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Construct the target URL
@@ -933,21 +933,21 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHis
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
 
 // FiatWithdrawHistory retrieves the list of fiat withdrawal history.
@@ -959,7 +959,7 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHis
 // Returns:
 // - response.FiatWithdrawHistory: The response body containing the fiat withdrawal history
 // - error: Any error that occurred during the API request
-func (bksdk *SDK) FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawHistoryResult, error) {
+func (bksdk *SDK) FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawHistoryResult, response.BKPaginate, error) {
 	// Initialize the response variable
 	var respBody response.FiatWithdrawHistory
 
@@ -972,7 +972,7 @@ func (bksdk *SDK) FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawH
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Construct the target URL
@@ -981,19 +981,19 @@ func (bksdk *SDK) FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawH
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody.Result, errs[0]
+		return respBody.Result, respBody.Pagination, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody.Result, err
+		return respBody.Result, respBody.Pagination, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, respBody.Pagination, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody.Result, nil
+	return respBody.Result, respBody.Pagination, nil
 }
