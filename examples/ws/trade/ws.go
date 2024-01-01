@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -13,14 +14,14 @@ import (
 	"github.com/naruebaet/bitkub-sdk/bksdk/response"
 )
 
-// main is the entry point of the program.
 func main() {
 	// Create a channel to receive signals for interrupt and termination.
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	// Create a context with a timeout of 1 minute.
 	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// Create a new instance of the SDK with the provided API credentials.
 	sdk := bksdk.New("xxx", "xxx")
@@ -28,7 +29,7 @@ func main() {
 	// Get the symbols from the SDK.
 	symbols, err := sdk.GetSymbols()
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Create the streamLine string from the symbols.
@@ -50,7 +51,7 @@ func main() {
 	// Read messages from the reader channel until the context is done.
 	for {
 		select {
-		case sig := <-sigs:
+		case sig := <-signals:
 			fmt.Println("-------------------")
 			fmt.Println("Signal operated")
 			fmt.Println(sig)
@@ -62,19 +63,20 @@ func main() {
 				fmt.Println(raw)
 				return
 			}
-
-			// in this case we need to parse the message to ws ticker type
-			var wsTrade response.WsTrade
-			err := json.Unmarshal([]byte(raw), &wsTrade)
-			if err != nil {
-				fmt.Println("---------ERR----------")
-				fmt.Println(err)
-				fmt.Println(raw)
-				fmt.Println("---------ERR----------")
-				continue
+			// Parse the message to ws ticker type.
+			raws := strings.Split(raw, "\n")
+			for _, rawv := range raws {
+				var wsTrade response.WsTrade
+				err = json.Unmarshal([]byte(rawv), &wsTrade)
+				if err != nil {
+					fmt.Println("---------ERR----------")
+					fmt.Println(err)
+					fmt.Println(raw)
+					fmt.Println("---------ERR----------")
+					continue
+				}
+				fmt.Printf("Trade: %s, Txn: %s, Rate: %f\n", wsTrade.Stream[17:], wsTrade.Txn, wsTrade.Rat)
 			}
-
-			fmt.Printf("Trade : %s, Txn: %s, Rate: %f\n", wsTrade.Stream[17:], wsTrade.Txn, wsTrade.Rat)
 		}
 	}
 }

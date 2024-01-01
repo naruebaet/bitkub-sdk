@@ -60,7 +60,7 @@ func (bksdk *SDK) GetServerTime() (string, error) {
 // GetSymbols retrieves the market symbols from the API.
 // Endpoint: /api/market/symbols
 // Method: GET
-func (bksdk *SDK) GetSymbols() (response.MarketSymbols, error) {
+func (bksdk *SDK) GetSymbols() ([]response.MarketSymbolsResult, error) {
 	// Initialize the response body
 	var respBody response.MarketSymbols
 
@@ -70,26 +70,26 @@ func (bksdk *SDK) GetSymbols() (response.MarketSymbols, error) {
 	// Send the HTTP GET request
 	resp, body, errs := bksdk.req.Get(targetURL.String()).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
+		return respBody.Result, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if there is an error in the response body
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GetTicker retrieves the market ticker for a given symbol.
@@ -140,7 +140,7 @@ func (bksdk *SDK) GetTicker(sym string) (response.MarketTicker, error) {
 // Returns:
 // - response.MarketTrades: The response body containing the recent trades
 // - error: An error if the request fails or if the response body cannot be parsed
-func (bksdk *SDK) GetTrade(sym string, limit int) (response.MarketTrades, error) {
+func (bksdk *SDK) GetTrade(sym string, limit int) (response.MarketTradesResult, error) {
 	// Initialize the response body
 	var respBody response.MarketTrades
 
@@ -155,27 +155,27 @@ func (bksdk *SDK) GetTrade(sym string, limit int) (response.MarketTrades, error)
 	// Make the GET request
 	resp, body, errs := bksdk.req.Get(targetURL.String() + "?" + queryValues.Encode()).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
+		return respBody.Result, errors.New(body)
 	}
 
 	// Parse the response body
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check for any errors in the response body
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GetBids queries the /api/market/bids endpoint with the GET method
@@ -188,7 +188,7 @@ func (bksdk *SDK) GetTrade(sym string, limit int) (response.MarketTrades, error)
 // Returns:
 // - response.MarketBids: The response body containing the market bids
 // - error: An error if any occurred during the request or response handling
-func (bksdk *SDK) GetBids(sym string, limit int) (response.MarketBids, error) {
+func (bksdk *SDK) GetBids(sym string, limit int) (response.MarketResult, error) {
 	// Initialize the response body
 	var respBody response.MarketBids
 
@@ -203,33 +203,33 @@ func (bksdk *SDK) GetBids(sym string, limit int) (response.MarketBids, error) {
 	// Send the GET request and handle the response
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Check the response status code
 	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
+		return respBody.Result, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the respBody contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GetAsks retrieves a list of open sell orders for a given symbol with a specified limit.
 // It makes a GET request to the /api/market/asks endpoint.
 // Returns the response body as a MarketAsks struct and any error encountered.
-func (bksdk *SDK) GetAsks(sym string, limit int) (response.MarketAsks, error) {
+func (bksdk *SDK) GetAsks(sym string, limit int) (response.MarketResult, error) {
 	// Initialize the response body
 	var respBody response.MarketAsks
 
@@ -244,27 +244,27 @@ func (bksdk *SDK) GetAsks(sym string, limit int) (response.MarketAsks, error) {
 	// Send the GET request and retrieve the response
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Check if the response status code is not OK
 	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
+		return respBody.Result, errors.New(body)
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the respBody.Error field is not zero
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and no error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GetBooks retrieves market books for a given symbol and limit
@@ -275,7 +275,7 @@ Query Parameters:
 	sym string - The symbol (e.g. thb_btc)
 	lmt int - Number of limit to query open sell orders
 */
-func (bksdk *SDK) GetBooks(sym string, limit int) (response.MarketBooks, error) {
+func (bksdk *SDK) GetBooks(sym string, limit int) (response.MarketBooksResult, error) {
 	// Initialize response body
 	var respBody response.MarketBooks
 
@@ -290,27 +290,27 @@ func (bksdk *SDK) GetBooks(sym string, limit int) (response.MarketBooks, error) 
 	// Send GET request to the target URL with query parameters
 	resp, body, errs := bksdk.req.Get(targetUrl.String() + "?" + queryValues.Encode()).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Check response status code
 	if resp.StatusCode != http.StatusOK {
-		return respBody, errors.New(body)
+		return respBody.Result, errors.New(body)
 	}
 
 	// Unmarshal response body into respBody
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if respBody contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return respBody and nil error if everything is successful
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GetDepth queries the /api/market/books endpoint using the GET method
