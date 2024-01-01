@@ -16,8 +16,8 @@ import (
 // main is the entry point of the program.
 func main() {
 	// Create a channel to receive signals for interrupt and termination.
-	sigs := make(chan os.Signal, 1)
-	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
 	// Create a context with a timeout of 1 minute.
 	ctx, cancel := context.WithCancel(context.Background())
@@ -50,9 +50,9 @@ func main() {
 	// Read messages from the reader channel until the context is done.
 	for {
 		select {
-		case sig := <-sigs:
+		case sig := <-signals:
 			fmt.Println("-------------------")
-			fmt.Println("Signal operated")
+			fmt.Println("Signal received")
 			fmt.Println(sig)
 			cancel()
 			fmt.Println("-------------------")
@@ -63,19 +63,21 @@ func main() {
 				return
 			}
 
-			// in this case we need to parse the message to ws ticker type
-			var wsticker response.WsTicker
-			err := json.Unmarshal([]byte(raw), &wsticker)
-			if err != nil {
-				fmt.Println("---------ERR----------")
-				fmt.Println(err)
-				fmt.Println(raw)
-				fmt.Println("---------ERR----------")
-				continue
+			// Parse the message to ws ticker type and print the ticker and last price.
+			messages := strings.Split(raw, "\n")
+			for _, message := range messages {
+				var ticker response.WsTicker
+				err := json.Unmarshal([]byte(message), &ticker)
+				if err != nil {
+					fmt.Println("---------ERR----------")
+					fmt.Println(err)
+					fmt.Println(raw)
+					fmt.Println("---------ERR----------")
+					continue
+				}
+
+				fmt.Printf("Ticker: %s, Last: %f\n", ticker.Stream[18:], ticker.Last)
 			}
-
-			fmt.Printf("Ticker : %s, Last: %f\n", wsticker.Stream[18:], wsticker.Last)
-
 		}
 	}
 }

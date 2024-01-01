@@ -34,6 +34,10 @@ func CreateWsConnection(streamName string, reader chan string, ctx context.Conte
 		for {
 			_, message, err := conn.ReadMessage()
 			if err != nil {
+				if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+					reader <- "Connection closed"
+					return
+				}
 				reader <- fmt.Sprintf("Error reading message from websocket: %s", err.Error())
 			}
 

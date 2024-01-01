@@ -21,7 +21,7 @@ import (
 // Returns:
 // - response.MyOpenOrder: The response body containing the list of open orders
 // - error: Any error that occurred during the API call
-func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
+func (bksdk *SDK) MyOpenOrder(sym string) ([]response.MyOpenOrderResult, error) {
 	// Initialize an empty variable to store the response body
 	var respBody response.MyOpenOrder
 
@@ -35,21 +35,21 @@ func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 	// Make the authenticated GET request
 	_, body, errs := bksdk.authGet(targetUrl, queryValues).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // MyOrderHistory retrieves a list of orders that have already matched.
@@ -67,7 +67,7 @@ func (bksdk *SDK) MyOpenOrder(sym string) (response.MyOpenOrder, error) {
 // Returns:
 //   - response.MyOrderHistory: The response body containing the order history
 //   - error: An error if the request fails
-func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (response.MyOrderHistory, error) {
+func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) ([]response.MyOrderHistoryResult, error) {
 	// Initialize the response body
 	var respBody response.MyOrderHistory
 
@@ -95,22 +95,22 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (respo
 	// Make the authenticated GET request
 	_, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // OrderInfo returns information regarding the specified order.
@@ -120,7 +120,7 @@ func (bksdk *SDK) MyOrderHistory(sym string, page, limit, start, end int) (respo
 // - orderId: the ID of the order
 // - side: the side of the order: buy or sell
 // It returns an instance of response.OrderInfo and an error, if any.
-func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfoResult, error) {
 	// Initialize the response body
 	var respBody response.OrderInfo
 
@@ -136,22 +136,22 @@ func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, erro
 	// Make the GET request and get the response
 	_, body, errs := bksdk.authGet(targetURL, queryValues).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into respBody
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if there is any error in the response
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // OrderInfoByHash retrieves information about the specified order.
@@ -164,7 +164,7 @@ func (bksdk *SDK) OrderInfo(sym, orderId, side string) (response.OrderInfo, erro
 // Returns:
 //   - response.OrderInfo: The information about the order.
 //   - error: An error if the request fails or if there is an issue with parsing the response.
-func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
+func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfoResult, error) {
 	var respBody response.OrderInfo
 
 	// Construct the target URL
@@ -177,26 +177,26 @@ func (bksdk *SDK) OrderInfoByHash(hash string) (response.OrderInfo, error) {
 	// Send the GET request to the target URL with the query parameters
 	_, body, errs := bksdk.authGet(targetUrl, queVal).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body and store it in respBody
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if there is an error in the response body
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and nil error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // TradingCredit retrieves the trading credit balance.
-func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
+func (bksdk *SDK) TradingCredit() (float64, error) {
 	// Create a variable to store the response body
 	var respBody response.TradingCredit
 
@@ -206,26 +206,26 @@ func (bksdk *SDK) TradingCredit() (response.TradingCredit, error) {
 	// Make a POST request to the API endpoint
 	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody variable
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the trading credit balance and no error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Limits checks deposit/withdraw limitations and usage.
-func (bksdk *SDK) Limits() (response.Limits, error) {
+func (bksdk *SDK) Limits() (response.LimitsResult, error) {
 	var respBody response.Limits
 
 	// Construct the target URL
@@ -234,27 +234,27 @@ func (bksdk *SDK) Limits() (response.Limits, error) {
 	// Send a POST request to the target URL
 	_, body, errs := bksdk.authPost(targetURL, "").End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody struct
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if there is an error in the response
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Wallet retrieves the user's available balances, including both available and reserved balances.
 // It makes a POST request to the /api/v3/market/wallet endpoint.
 // It returns the user's wallet information and any error that occurred during the API call.
-func (bksdk *SDK) Wallet() (response.Wallet, error) {
+func (bksdk *SDK) Wallet() (response.WalletResult, error) {
 	var respBody response.Wallet
 
 	// Construct the target URL
@@ -263,21 +263,21 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 	// Make the API call
 	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the API response
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Balance returns the balances information, including both available and reserved balances.
@@ -285,7 +285,7 @@ func (bksdk *SDK) Wallet() (response.Wallet, error) {
 // Endpoint:  /api/v3/market/balances
 // Method: POST
 // Parameter: N/A
-func (bksdk *SDK) Balances() (response.Balances, error) {
+func (bksdk *SDK) Balances() (response.BalanceResult, error) {
 	// Initialize the response object
 	var respBody response.Balances
 
@@ -295,22 +295,22 @@ func (bksdk *SDK) Balances() (response.Balances, error) {
 	// Send the authenticated POST request
 	_, body, errs := bksdk.authPost(targetUrl, "").End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal the response body into the respBody struct
 	err := json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response object
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // WsToken retrieves the token for websocket authentication.
@@ -322,7 +322,7 @@ func (bksdk *SDK) Balances() (response.Balances, error) {
 // Returns:
 // - response.WsToken: the response body containing the token.
 // - error: if there was an error making the request or parsing the response.
-func (bksdk *SDK) WsToken() (response.WsToken, error) {
+func (bksdk *SDK) WsToken() (token string, err error) {
 	// Create a variable to store the response body
 	var respBody response.WsToken
 
@@ -332,28 +332,28 @@ func (bksdk *SDK) WsToken() (response.WsToken, error) {
 	// Make the POST request to the API endpoint
 	_, body, errs := bksdk.authPost(targetURL, "").End()
 	if errs != nil {
-		return respBody, errs[0]
+		return "", errs[0]
 	}
 
 	// Parse the response body
-	err := json.Unmarshal([]byte(body), &respBody)
+	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return "", err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return "", errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
 	// Return the response body and no error
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // InternalWithdraw makes a withdrawal to an internal address.
 // The destination address does not need to be a trusted address.
 // This API is not enabled by default. Only KYB users can request this feature by contacting us via support@bitkub.com.
-func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdraw, error) {
+func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo string, amount float64) (response.InternalWithdrawResult, error) {
 
 	var respBody response.InternalWithdraw
 
@@ -368,7 +368,7 @@ func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo s
 	// Marshal request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return response.InternalWithdraw{}, err
+		return respBody.Result, err
 	}
 
 	// Construct target URL
@@ -377,21 +377,21 @@ func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo s
 	// Send authenticated POST request with request body
 	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
-		return response.InternalWithdraw{}, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Unmarshal response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return response.InternalWithdraw{}, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // DepositHistory returns a list of crypto deposit history.
@@ -402,7 +402,7 @@ func (bksdk *SDK) CryptoInternalWithdraw(currency string, address string, memo s
 // Returns:
 // - response.DepositHistory: the deposit history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory, error) {
+func (bksdk *SDK) CryptoDepositHistory(page, limit int) ([]response.DepositHistoryResult, error) {
 	var respBody response.DepositHistory
 
 	// Prepare the request body
@@ -414,7 +414,7 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	targetUrl := bksdk.apiHost.JoinPath(api.CryptoDepositHistoryV3)
@@ -422,21 +422,21 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // WithdrawHistory returns a list of crypto withdraw history.
@@ -447,7 +447,7 @@ func (bksdk *SDK) CryptoDepositHistory(page, limit int) (response.DepositHistory
 // Returns:
 // - response.WithdrawHistory: the withdraw history response
 // - error: any error that occurred during the request
-func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHistory, error) {
+func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) ([]response.WithdrawHistoryResult, error) {
 	// Initialize the response variable
 	var respBody response.WithdrawHistory
 
@@ -460,7 +460,7 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHisto
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -469,21 +469,21 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHisto
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetUrl, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // PlaceBid creates a buy order by sending a POST request to the /api/v3/market/place-bid endpoint.
@@ -493,7 +493,7 @@ func (bksdk *SDK) CryptoWithdrawHistory(page, limit int) (response.WithdrawHisto
 // - rat: float64 - Rate you want for the order with no trailing zero (e.g. 1000.00 is invalid, 1000 is ok).
 // - typ: string - Order type: limit or market (for market order, please specify rat as 0).
 // - client_id: string - Your id for reference (not required).
-func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) (response.PlaceBid, error) {
+func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) (response.PlaceBidResult, error) {
 	// Initialize the response variable
 	var respBody response.PlaceBid
 
@@ -509,13 +509,13 @@ func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) 
 	// Validate the request body
 	err := reqBody.Validate()
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -524,21 +524,21 @@ func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) 
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // PlaceAsk creates a sell order.
@@ -551,7 +551,7 @@ func (bksdk *SDK) PlaceBid(sym string, amt, rat float64, typ, client_id string) 
 // - typ: string - Order type: limit or market (for market order, please specify rat as 0).
 // - client_id: string - Your id for reference (not required).
 // It returns the response body and an error (if any).
-func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) (response.PlaceAsk, error) {
+func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) (response.PlaceAskResult, error) {
 	// Initialize the response variable
 	var respBody response.PlaceAsk
 
@@ -567,13 +567,13 @@ func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) 
 	// Validate the request body
 	err := reqBody.Validate()
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Convert the request body to JSON
 	reqBodyByte, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -582,21 +582,21 @@ func (bksdk *SDK) PlaceAsk(sym string, amt, rat float64, typ, client_id string) 
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(reqBodyByte)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Endpoint: /api/v3/market/cancel-order
@@ -658,7 +658,7 @@ func (bksdk *SDK) CancelOrder(sym, id, sd, hash string) (response.CancelOrder, e
 // It sends a POST request to the /api/v3/crypto/addresses endpoint
 // with optional pagination parameters (page and limit).
 // It returns a response containing the crypto addresses and an error, if any.
-func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, error) {
+func (bksdk *SDK) CryptoAddresses(page, limit int) ([]response.CryptoAddressesResult, error) {
 	// Initialize the response variable
 	var respBody response.CryptoAddresses
 
@@ -671,7 +671,7 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, er
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -680,21 +680,21 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, er
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // GenerateAddress generates a new crypto address for the given symbol.
@@ -707,7 +707,7 @@ func (bksdk *SDK) CryptoAddresses(page, limit int) (response.CryptoAddresses, er
 // Returns:
 // - response: The generated address and other relevant information.
 // - error: An error if the request fails or if there is an issue parsing the response.
-func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateAddress, error) {
+func (bksdk *SDK) CryptoGenerateAddress(symbol string) ([]response.CryptoGenerateAddressResult, error) {
 	// Initialize the response variable
 	var respBody response.CryptoGenerateAddress
 
@@ -722,7 +722,7 @@ func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateA
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -731,21 +731,21 @@ func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateA
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Withdraw makes a withdrawal to a trusted address.
@@ -766,7 +766,7 @@ func (bksdk *SDK) CryptoGenerateAddress(symbol string) (response.CryptoGenerateA
 // Returns:
 // - response: The response body with the withdrawal details
 // - error: An error if the withdrawal request fails
-func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdraw, error) {
+func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, amount float64, network string) (response.CryptoWithdrawResult, error) {
 	// Initialize the response variable
 	var respBody response.CryptoWithdraw
 
@@ -782,7 +782,7 @@ func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, a
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -791,21 +791,21 @@ func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, a
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Accounts lists all approved bank accounts.
@@ -817,7 +817,7 @@ func (bksdk *SDK) CryptoWithdraw(currency string, address string, memo string, a
 // Returns:
 // - response.FiatAccounts: List of approved bank accounts
 // - error: Error if any occurs
-func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, error) {
+func (bksdk *SDK) FiatAccounts(page int, limit int) ([]response.FiatAccountsResult, error) {
 	// Initialize the response variable
 	var respBody response.FiatAccounts
 
@@ -830,7 +830,7 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, erro
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -839,21 +839,21 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, erro
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // FiatWithdraw makes a withdrawal to an approved bank account.
@@ -864,7 +864,7 @@ func (bksdk *SDK) FiatAccounts(page int, limit int) (response.FiatAccounts, erro
 // Returns:
 // - response.FiatWithdraw: the response body
 // - error: any error that occurred during the request
-func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, error) {
+func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdrawResult, error) {
 	// Initialize the response variable
 	var respBody response.FiatWithdraw
 
@@ -877,7 +877,7 @@ func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, e
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -886,21 +886,21 @@ func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, e
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // Endpoint: /api/v3/fiat/deposit-history
@@ -911,7 +911,7 @@ func (bksdk *SDK) FiatWithdraw(id string, amt float64) (response.FiatWithdraw, e
 // - lmt int Limit (optional)
 // Function: FiatDepositHistory retrieves the fiat deposit history using the specified page and limit.
 // It returns a response object containing the deposit history and an error if any.
-func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHistory, error) {
+func (bksdk *SDK) FiatDepositHistory(page, limit int) ([]response.FiatDepositHistoryResult, error) {
 	// Initialize the response variable
 	var respBody response.FiatDepositHistory
 
@@ -924,7 +924,7 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHisto
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -933,21 +933,21 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHisto
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
 
 // FiatWithdrawHistory retrieves the list of fiat withdrawal history.
@@ -959,7 +959,7 @@ func (bksdk *SDK) FiatDepositHistory(page, limit int) (response.FiatDepositHisto
 // Returns:
 // - response.FiatWithdrawHistory: The response body containing the fiat withdrawal history
 // - error: Any error that occurred during the API request
-func (bksdk *SDK) FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHistory, error) {
+func (bksdk *SDK) FiatWithdrawHistory(page, limit int) ([]response.FiatWithdrawHistoryResult, error) {
 	// Initialize the response variable
 	var respBody response.FiatWithdrawHistory
 
@@ -972,7 +972,7 @@ func (bksdk *SDK) FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHis
 	// Convert the request body to JSON
 	jsonReqBody, err := json.Marshal(reqBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Construct the target URL
@@ -981,19 +981,19 @@ func (bksdk *SDK) FiatWithdrawHistory(page, limit int) (response.FiatWithdrawHis
 	// Send the authenticated POST request with the request body
 	_, body, errs := bksdk.authPost(targetURL, string(jsonReqBody)).End()
 	if errs != nil {
-		return respBody, errs[0]
+		return respBody.Result, errs[0]
 	}
 
 	// Parse the response body
 	err = json.Unmarshal([]byte(body), &respBody)
 	if err != nil {
-		return respBody, err
+		return respBody.Result, err
 	}
 
 	// Check if the response body contains an error
 	if respBody.Error != 0 {
-		return respBody, errors.New(bkerr.ErrorText(respBody.Error))
+		return respBody.Result, errors.New(bkerr.ErrorText(respBody.Error))
 	}
 
-	return respBody, nil
+	return respBody.Result, nil
 }
