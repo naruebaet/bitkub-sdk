@@ -55,7 +55,7 @@ func TestGetBids(t *testing.T) {
 			// Perform assertions based on the test case name.
 			switch tt.name {
 			case "should return 5 bids data of BTC":
-				assert.Equal(t, tt.want, len(got.Result[0]))
+				assert.Equal(t, tt.want, len(got[0]))
 			case "should return MarketBids type":
 				assert.IsType(t, tt.want, got)
 			}

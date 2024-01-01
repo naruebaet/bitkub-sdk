@@ -34,7 +34,7 @@ func main() {
 
 	// Create the streamLine string from the symbols.
 	var streams []string
-	for _, sym := range symbols.Result {
+	for _, sym := range symbols {
 		streams = append(streams, fmt.Sprintf(bksdk.WS_TRADE_STREAM, sym.Symbol))
 	}
 	streamLine := strings.Join(streams, ",")
