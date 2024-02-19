@@ -95,13 +95,13 @@ func (bksdk *SDK) GetSymbols() ([]response.MarketSymbolsResult, error) {
 // GetTicker retrieves the market ticker for a given symbol.
 // It makes a GET request to the "/api/market/ticker" endpoint.
 // If a symbol is provided, it is included as a query parameter.
-// The response body is unmarshalled into a response.MarketTicker struct.
+// The response body is unmarshalled into a response.MarketTickerData struct.
 // If the request is successful, the response body is returned along with nil error.
 // If any error occurs during the request or unmarshalling, the response body is empty
 // and the error is returned.
-func (bksdk *SDK) GetTicker(sym string) (response.MarketTicker, error) {
+func (bksdk *SDK) GetTicker(sym string) (map[string]response.MarketTickerData, error) {
 	// Initialize the response body
-	var respBody response.MarketTicker
+	var respBody map[string]response.MarketTickerData
 
 	// Build the target URL
 	targetURL := bksdk.apiHost.JoinPath(api.MarketTicker)

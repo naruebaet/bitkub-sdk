@@ -19,7 +19,7 @@ type SDKEndpoints interface {
 	GetStatus() (response.Status, error)
 	GetServerTime() (string, error)
 	GetSymbols() ([]response.MarketSymbolsResult, error)
-	GetTicker(sym string) (response.MarketTicker, error)
+	GetTicker(sym string) (map[string]response.MarketTickerData, error)
 	GetTrade(sym string, limit int) (response.MarketTradesResult, error)
 	GetBids(sym string, limit int) (response.MarketResult, error)
 	GetAsks(sym string, limit int) (response.MarketResult, error)
